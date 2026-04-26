@@ -10,6 +10,10 @@ const clerkConfigured = Boolean(
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
+  alternates: {
+    canonical: "/",
+    languages: { "en-AE": "/" },
+  },
   title: {
     default: "Synergy Business | Business Setup in Abu Dhabi, UAE",
     template: "%s | Synergy Business",

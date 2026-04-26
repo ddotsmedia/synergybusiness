@@ -161,20 +161,20 @@ if (-not $SkipPush) {
 
 if (-not $NoDnsCheck) {
     Write-Step "Checking DNS"
-    foreach ($host in @($Domain, "www.$Domain", $AdminDomain)) {
+    foreach ($dnsHost in @($Domain, "www.$Domain", $AdminDomain)) {
         try {
-            $resolved = (Resolve-DnsName $host -Type A -ErrorAction Stop -DnsOnly |
+            $resolved = (Resolve-DnsName $dnsHost -Type A -ErrorAction Stop -DnsOnly |
                          Where-Object Type -eq "A" |
                          Select-Object -ExpandProperty IPAddress -First 1)
             if ($resolved -eq $VpsIp) {
-                Write-OK "$host -> $VpsIp"
+                Write-OK "$dnsHost -> $VpsIp"
             } elseif ($resolved) {
-                Write-Warn "$host -> $resolved (expected $VpsIp)"
+                Write-Warn "$dnsHost -> $resolved (expected $VpsIp)"
             } else {
-                Write-Warn "$host -> no A record yet"
+                Write-Warn "$dnsHost -> no A record yet"
             }
         } catch {
-            Write-Warn "$host -> not resolvable (add an A record at hPanel)"
+            Write-Warn "$dnsHost -> not resolvable (add an A record at hPanel)"
         }
     }
 }
