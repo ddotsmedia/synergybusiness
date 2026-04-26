@@ -7,8 +7,15 @@ import { CalculatorTeaser } from "@/components/marketing/CalculatorTeaser";
 import { FAQ } from "@/components/marketing/FAQ";
 import { ContactCTA } from "@/components/marketing/ContactCTA";
 import { FAQS } from "@/lib/faqs";
+import { getPageContent } from "@/lib/site-content";
 
-export default function Home() {
+// Pull DB-backed content overrides at request time so admin edits land
+// on the live page within seconds of saving.
+export const revalidate = 60;
+
+export default async function Home() {
+  const content = await getPageContent("home");
+
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -24,8 +31,8 @@ export default function Home() {
 
   return (
     <>
-      <Hero />
-      <Services />
+      <Hero content={content} />
+      <Services content={content} />
       <HowItWorks />
       <FreeZones />
       <Testimonials />

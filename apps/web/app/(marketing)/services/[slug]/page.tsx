@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ServiceDetail } from "@/components/services/ServiceDetail";
+import { getPublicService } from "@/lib/admin/entities";
 import {
   SERVICE_SLUGS,
-  getService,
   type ServiceSlug,
 } from "@/lib/services-data";
 import { absoluteUrl, siteUrl } from "@/lib/site";
@@ -14,7 +14,9 @@ export function generateStaticParams(): Params[] {
   return SERVICE_SLUGS.map((slug) => ({ slug }));
 }
 
-export const dynamicParams = false;
+// Allow new admin-created services (with new slugs) to render on first hit.
+export const dynamicParams = true;
+export const revalidate = 60;
 
 export async function generateMetadata({
   params,
@@ -22,7 +24,7 @@ export async function generateMetadata({
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const service = getService(slug);
+  const service = await getPublicService(slug);
   if (!service) return {};
 
   return {
@@ -51,7 +53,7 @@ export default async function ServicePage({
   params: Promise<Params>;
 }) {
   const { slug } = await params;
-  const service = getService(slug);
+  const service = await getPublicService(slug);
 
   if (!service) notFound();
 

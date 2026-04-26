@@ -13,10 +13,10 @@ import { BlogBody } from "@/components/blog/BlogBody";
 import { Button } from "@/components/ui/button";
 import { type BlogPost } from "@/lib/blog-data";
 import {
-  getPost,
-  getRelatedPosts,
-  listPostSlugs,
-} from "@/lib/integrations/sanity";
+  getPublicPost as getPost,
+  getPublicRelatedPosts as getRelatedPosts,
+  listPublicPostSlugs as listPostSlugs,
+} from "@/lib/blog-source";
 import { absoluteUrl, siteUrl } from "@/lib/site";
 
 type Params = { slug: string };

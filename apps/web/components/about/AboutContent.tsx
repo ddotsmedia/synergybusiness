@@ -13,6 +13,7 @@ import {
   Target,
   Users,
 } from "lucide-react";
+import type { Content } from "@/lib/site-content";
 import { Button } from "@/components/ui/button";
 
 const STATS = [
@@ -77,7 +78,48 @@ const TIMELINE = [
   },
 ];
 
-export function AboutContent() {
+function s(content: Content, key: string, fallback: string): string {
+  const v = content[key];
+  return typeof v === "string" && v.length > 0 ? v : fallback;
+}
+
+export function AboutContent({ content = {} }: { content?: Content }) {
+  const heroEyebrow = s(content, "hero.eyebrow", "About Synergy Business");
+  const heroTitleMain = s(content, "hero.titleMain", "Abu Dhabi's");
+  const heroTitleHighlight = s(content, "hero.titleHighlight", "trusted");
+  const heroTitleAfter = s(
+    content,
+    "hero.titleAfter",
+    "business setup partner since 2014.",
+  );
+  const heroDescription = s(
+    content,
+    "hero.description",
+    "We're a licensed Abu Dhabi consultancy that has helped over 1,800 founders incorporate, hire, bank and obtain residence in the UAE. Our north star is simple: protect your time and your capital — and tell you the truth, even when it's inconvenient.",
+  );
+
+  const missionEyebrow = s(content, "mission.eyebrow", "Our mission");
+  const missionHeadline = s(
+    content,
+    "mission.headline",
+    "Make UAE business setup feel obvious — not overwhelming.",
+  );
+  const missionP1 = s(
+    content,
+    "mission.paragraph1",
+    "The UAE rewards founders who move fast — but the regulatory landscape rewards patience and precision. Our job is to take the second part off your plate so you can focus on the first.",
+  );
+  const missionP2 = s(
+    content,
+    "mission.paragraph2",
+    "Synergy was founded in 2014 by a team of UAE-licensed PROs and ex-Big-4 consultants who were tired of seeing first-time founders steered into the wrong free zone, the wrong visa class, or the wrong bank — usually because their advisor optimised for commission rather than fit.",
+  );
+  const missionP3 = s(
+    content,
+    "mission.paragraph3",
+    "A decade later, we're still founder-led, still Abu-Dhabi-based, and still measured by one metric: would our clients refer us? About 80% of our revenue comes from existing clients and their referrals — that's the answer we trust most.",
+  );
+
   return (
     <>
       {/* HERO */}
@@ -96,21 +138,17 @@ export function AboutContent() {
           >
             <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/80 backdrop-blur">
               <span className="h-1.5 w-1.5 rounded-full bg-[#c9a84c]" />
-              About Synergy Business
+              {heroEyebrow}
             </span>
 
             <h1 className="mt-6 font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.05] tracking-tight">
-              Abu Dhabi&apos;s{" "}
-              <span className="text-gold-gradient">trusted</span> business
-              setup partner since 2014.
+              {heroTitleMain}{" "}
+              <span className="text-gold-gradient">{heroTitleHighlight}</span>{" "}
+              {heroTitleAfter}
             </h1>
 
             <p className="mt-6 text-base sm:text-lg text-white/75 max-w-2xl leading-relaxed">
-              We&apos;re a licensed Abu Dhabi consultancy that has helped over
-              1,800 founders incorporate, hire, bank and obtain residence in
-              the UAE. Our north star is simple: protect your time and your
-              capital — and tell you the truth, even when it&apos;s
-              inconvenient.
+              {heroDescription}
             </p>
           </motion.div>
         </div>
@@ -148,12 +186,10 @@ export function AboutContent() {
             className="lg:col-span-5"
           >
             <p className="text-sm font-semibold tracking-wide uppercase text-[#c9a84c]">
-              Our mission
+              {missionEyebrow}
             </p>
             <h2 className="mt-3 font-display text-3xl sm:text-4xl text-[#0a2540]">
-              Make UAE business setup feel{" "}
-              <em className="text-[#c9a84c] not-italic">obvious</em> — not
-              overwhelming.
+              {missionHeadline}
             </h2>
           </motion.div>
 
@@ -164,25 +200,9 @@ export function AboutContent() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="lg:col-span-7 space-y-5 text-[#1a2b3c] text-base leading-relaxed"
           >
-            <p>
-              The UAE rewards founders who move fast — but the regulatory
-              landscape rewards patience and precision. Our job is to take the
-              second part off your plate so you can focus on the first.
-            </p>
-            <p>
-              Synergy was founded in 2014 by a team of UAE-licensed PROs and
-              ex-Big-4 consultants who were tired of seeing first-time
-              founders steered into the wrong free zone, the wrong visa class,
-              or the wrong bank — usually because their advisor optimised for
-              commission rather than fit.
-            </p>
-            <p>
-              A decade later, we&apos;re still founder-led, still
-              Abu-Dhabi-based, and still measured by one metric: would our
-              clients refer us? About 80% of our revenue comes from existing
-              clients and their referrals — that&apos;s the answer we trust
-              most.
-            </p>
+            <p>{missionP1}</p>
+            <p>{missionP2}</p>
+            <p>{missionP3}</p>
           </motion.div>
         </div>
       </section>

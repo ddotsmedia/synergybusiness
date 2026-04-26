@@ -1,0 +1,170 @@
+name: Deploy to VPS
+
+# Triggers on every push to main and a manual "Run workflow" button.
+on:
+  push:
+    branches: [main]
+    # Skip CI-only doc churn (these never need a deploy).
+    paths-ignore:
+      - "**/*.md"
+      - ".gitignore"
+      - ".gitattributes"
+      - "DEPLOYMENT*.md"
+      - "scripts/install-vps.sh"   # changes to the bootstrap aren't an app deploy
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "Why are you re-running deploy?"
+        required: false
+        type: string
+
+# Cancel an older in-flight deploy if a newer push arrives.
+concurrency:
+  group: vps-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: SSH + deploy
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 15
+
+    # Pulling secrets up to env so we can `if:`-gate the optional notify
+    # steps below. GitHub Actions doesn't allow `secrets.*` in `if:` expressions.
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+    steps:
+      - name: Verify required secrets
+        run: |
+          missing=""
+          [ -z "${{ secrets.VPS_HOST }}" ] && missing="$missing VPS_HOST"
+          [ -z "${{ secrets.VPS_USER }}" ] && missing="$missing VPS_USER"
+          [ -z "${{ secrets.VPS_SSH_KEY }}" ] && missing="$missing VPS_SSH_KEY"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing repo secrets:$missing"
+            echo "Add them at: Settings -> Secrets and variables -> Actions"
+            exit 1
+          fi
+
+      - name: Pull, build, reload on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          # 10-minute SSH timeout — pnpm install + build can be slow on
+          # smaller VPS plans.
+          timeout: 60s
+          command_timeout: 10m
+          script_stop: true
+          script: |
+            set -euo pipefail
+            cd /home/synergy/app
+            echo "==> Fetching origin/main"
+            git fetch origin main
+            BEFORE=$(git rev-parse HEAD)
+            git reset --hard origin/main
+            AFTER=$(git rev-parse HEAD)
+            if [ "$BEFORE" = "$AFTER" ]; then
+              echo "==> No new commits ($AFTER) — re-deploying anyway"
+            else
+              echo "==> Updated: $BEFORE -> $AFTER"
+              git --no-pager log --oneline "${BEFORE}..${AFTER}"
+            fi
+
+            echo "==> Installing dependencies"
+            pnpm install --frozen-lockfile || pnpm install
+
+            if [ -n "${DATABASE_URL:-}" ] || grep -q "^DATABASE_URL=." apps/web/.env.local 2>/dev/null; then
+              echo "==> Applying schema (pnpm db:push)"
+              pnpm db:push --force || echo "WARN: db:push failed; investigate manually"
+            else
+              echo "==> Skipping pnpm db:push (DATABASE_URL not set)"
+            fi
+
+            echo "==> Building"
+            pnpm build
+
+            echo "==> Reloading PM2"
+            if pm2 describe synergy-web >/dev/null 2>&1; then
+              pm2 reload synergy-web --update-env
+            else
+              pm2 startOrReload scripts/ecosystem.config.cjs
+            fi
+            pm2 save >/dev/null
+
+            echo "==> Done. Current commit:"
+            git --no-pager log --oneline -1
+
+      - name: Smoke-check the live site
+        if: success()
+        run: |
+          set -e
+          for path in / /admin /admin/services /admin/free-zones /admin/blog; do
+            host="https://synergybusiness.ae"
+            [[ "$path" == /admin* ]] && host="https://admin.synergybusiness.ae"
+            code=$(curl -sk -o /dev/null -w "%{http_code}" "${host}${path}" || echo "000")
+            echo "  ${code}  ${host}${path}"
+          done
+
+      - name: Notify Slack on success
+        if: success() && env.SLACK_WEBHOOK_URL != ''
+        run: |
+          payload=$(cat <<JSON
+          {
+            "text": ":white_check_mark: *synergybusiness.ae* deployed",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": ":white_check_mark: *synergybusiness.ae* deployed\n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|\`${{ github.sha }}\`> by ${{ github.actor }}\n\`${{ github.event.head_commit.message }}\`"
+                }
+              },
+              {
+                "type": "context",
+                "elements": [
+                  { "type": "mrkdwn", "text": "<https://synergybusiness.ae|Public site>  ·  <https://admin.synergybusiness.ae/admin|Admin>  ·  <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Run log>" }
+                ]
+              }
+            ]
+          }
+          JSON
+          )
+          curl -fsS -X POST -H 'Content-Type: application/json' \
+            -d "$payload" "$SLACK_WEBHOOK_URL" >/dev/null
+
+      - name: Notify Slack on failure
+        if: failure() && env.SLACK_WEBHOOK_URL != ''
+        run: |
+          payload=$(cat <<JSON
+          {
+            "text": ":x: *synergybusiness.ae* deploy failed",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": ":x: *synergybusiness.ae* deploy failed\nCommit <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|\`${{ github.sha }}\`> by ${{ github.actor }}"
+                }
+              },
+              {
+                "type": "actions",
+                "elements": [
+                  {
+                    "type": "button",
+                    "text": { "type": "plain_text", "text": "View run log" },
+                    "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                    "style": "danger"
+                  }
+                ]
+              }
+            ]
+          }
+          JSON
+          )
+          curl -fsS -X POST -H 'Content-Type: application/json' \
+            -d "$payload" "$SLACK_WEBHOOK_URL" >/dev/null

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LegalLayout } from "@/components/legal/LegalLayout";
+import { getPageContent, getString } from "@/lib/site-content";
 
 export const metadata: Metadata = {
   title: "Cookie Policy",
@@ -8,9 +9,16 @@ export const metadata: Metadata = {
   alternates: { canonical: "/legal/cookies" },
 };
 
-export default function Page() {
+export const revalidate = 60;
+
+export default async function Page() {
+  const content = await getPageContent("legal-cookies");
+  const title = getString(content, "header.title", "Cookie Policy");
+  const updated = getString(content, "header.updated", "January 2026");
+  const lead = getString(content, "header.lead", "");
+
   return (
-    <LegalLayout title="Cookie Policy" updated="January 2026">
+    <LegalLayout title={title} updated={updated} lead={lead || undefined}>
       <p>
         This policy explains how Synergy Business Consultancy LLC uses
         cookies and similar tracking technologies on{" "}

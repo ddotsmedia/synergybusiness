@@ -4,9 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Activity,
+  Briefcase,
   FileText,
   Inbox,
   LayoutDashboard,
+  MapPin,
+  Newspaper,
+  Pencil,
   Receipt,
   Settings,
   Users,
@@ -25,6 +29,15 @@ const SECTIONS: {
       { href: "/admin/applications", label: "Applications", icon: Users },
       { href: "/admin/documents", label: "Documents", icon: FileText },
       { href: "/admin/invoices", label: "Invoices", icon: Receipt },
+    ],
+  },
+  {
+    title: "Content",
+    items: [
+      { href: "/admin/content", label: "Page text", icon: Pencil },
+      { href: "/admin/services", label: "Services", icon: Briefcase },
+      { href: "/admin/free-zones", label: "Free zones", icon: MapPin },
+      { href: "/admin/blog", label: "Blog", icon: Newspaper },
     ],
   },
   {

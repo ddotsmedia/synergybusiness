@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import type { Content } from "@/lib/site-content";
 import {
   Select,
   SelectContent,
@@ -70,7 +71,49 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function ContactPage() {
+function s(content: Content, key: string, fallback: string): string {
+  const v = content[key];
+  return typeof v === "string" && v.length > 0 ? v : fallback;
+}
+
+export function ContactPage({ content = {} }: { content?: Content }) {
+  const heroEyebrow = s(
+    content,
+    "hero.eyebrow",
+    "We reply in under 1 hour, every business day",
+  );
+  const heroTitleMain = s(content, "hero.titleMain", "Talk to a");
+  const heroTitleHighlight = s(content, "hero.titleHighlight", "Synergy");
+  const heroTitleAfter = s(content, "hero.titleAfter", "consultant.");
+  const heroDescription = s(
+    content,
+    "hero.description",
+    "Fastest response is on WhatsApp. Prefer email or a scheduled call? We'll work with whatever fits your style.",
+  );
+  const whatsappNumber = s(
+    content,
+    "channels.whatsappNumber",
+    "+971 50 000 0000",
+  );
+  const whatsappLink = s(
+    content,
+    "channels.whatsappLink",
+    "https://wa.me/971500000000",
+  );
+  const phone = s(content, "channels.phone", "+971 2 000 0000");
+  const email = s(content, "channels.email", "hello@synergybusiness.ae");
+  const hours = s(
+    content,
+    "channels.hours",
+    "Sun–Thu · 9:00 – 18:00 GST",
+  );
+  const hqTitle = s(content, "hq.title", "Office 24, Al Maryah Tower");
+  const hqSubtitle = s(
+    content,
+    "hq.subtitle",
+    "Al Maryah Island, Abu Dhabi, UAE",
+  );
+
   const [submitted, setSubmitted] = useState(false);
 
   const {
@@ -139,18 +182,17 @@ export function ContactPage() {
           >
             <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/80 backdrop-blur">
               <span className="h-1.5 w-1.5 rounded-full bg-[#c9a84c]" />
-              We reply in under 1 hour, every business day
+              {heroEyebrow}
             </span>
 
             <h1 className="mt-6 font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.05] tracking-tight">
-              Talk to a{" "}
-              <span className="text-gold-gradient">Synergy</span>{" "}
-              consultant.
+              {heroTitleMain}{" "}
+              <span className="text-gold-gradient">{heroTitleHighlight}</span>{" "}
+              {heroTitleAfter}
             </h1>
 
             <p className="mt-6 text-base sm:text-lg text-white/75 max-w-2xl leading-relaxed">
-              Fastest response is on WhatsApp. Prefer email or a scheduled
-              call? We&apos;ll work with whatever fits your style.
+              {heroDescription}
             </p>
           </motion.div>
         </div>
@@ -160,7 +202,7 @@ export function ContactPage() {
       <section className="py-12 bg-white border-b border-border">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-4">
           <a
-            href="https://wa.me/971500000000"
+            href={whatsappLink}
             target="_blank"
             rel="noopener noreferrer"
             className="group flex items-center gap-4 rounded-2xl border border-border bg-white p-5 hover:border-[#c9a84c] hover:shadow-md transition-all"
@@ -170,7 +212,7 @@ export function ContactPage() {
             </div>
             <div>
               <div className="font-display text-lg text-[#0a2540]">
-                WhatsApp
+                WhatsApp · {whatsappNumber}
               </div>
               <div className="text-sm text-[#6b7e96]">
                 Replies within minutes · 7 days a week
@@ -179,7 +221,7 @@ export function ContactPage() {
           </a>
 
           <a
-            href="tel:+97120000000"
+            href={`tel:${phone.replace(/\s/g, "")}`}
             className="group flex items-center gap-4 rounded-2xl border border-border bg-white p-5 hover:border-[#c9a84c] hover:shadow-md transition-all"
           >
             <div className="h-12 w-12 rounded-xl bg-[#0a2540] flex items-center justify-center text-[#c9a84c]">
@@ -187,16 +229,14 @@ export function ContactPage() {
             </div>
             <div>
               <div className="font-display text-lg text-[#0a2540]">
-                +971 2 000 0000
+                {phone}
               </div>
-              <div className="text-sm text-[#6b7e96]">
-                Sun–Thu · 9:00 – 18:00 GST
-              </div>
+              <div className="text-sm text-[#6b7e96]">{hours}</div>
             </div>
           </a>
 
           <a
-            href="mailto:hello@synergybusiness.ae"
+            href={`mailto:${email}`}
             className="group flex items-center gap-4 rounded-2xl border border-border bg-white p-5 hover:border-[#c9a84c] hover:shadow-md transition-all"
           >
             <div className="h-12 w-12 rounded-xl bg-[#0a2540] flex items-center justify-center text-[#c9a84c]">
@@ -204,7 +244,7 @@ export function ContactPage() {
             </div>
             <div>
               <div className="font-display text-lg text-[#0a2540]">
-                hello@synergybusiness.ae
+                {email}
               </div>
               <div className="text-sm text-[#6b7e96]">
                 Replies within 1 business hour
@@ -417,10 +457,10 @@ export function ContactPage() {
                   Headquarters
                 </p>
                 <p className="mt-1 font-display text-lg text-[#0a2540]">
-                  Office 24, Al Maryah Tower
+                  {hqTitle}
                 </p>
                 <p className="text-sm text-[#6b7e96]">
-                  Al Maryah Island, Abu Dhabi, UAE
+                  {hqSubtitle}
                 </p>
               </div>
             </div>

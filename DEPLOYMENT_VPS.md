@@ -169,6 +169,14 @@ Keys to fill in:
 
 ## 4 · Deploy a new version
 
+### Recommended: auto-deploy on every push
+
+Set up GitHub Actions once and every `git push origin main` will deploy
+automatically — no SSH, no manual `pnpm build`. Full setup in
+[`AUTODEPLOY.md`](./AUTODEPLOY.md) (15 minutes, one-time).
+
+### Manual deploy
+
 After you push code to GitHub:
 
 ```bash

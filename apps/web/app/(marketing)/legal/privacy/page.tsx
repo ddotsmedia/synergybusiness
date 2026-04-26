@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LegalLayout } from "@/components/legal/LegalLayout";
+import { getPageContent, getString } from "@/lib/site-content";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
@@ -9,9 +10,16 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function Page() {
+export const revalidate = 60;
+
+export default async function Page() {
+  const content = await getPageContent("legal-privacy");
+  const title = getString(content, "header.title", "Privacy Policy");
+  const updated = getString(content, "header.updated", "January 2026");
+  const lead = getString(content, "header.lead", "");
+
   return (
-    <LegalLayout title="Privacy Policy" updated="January 2026">
+    <LegalLayout title={title} updated={updated} lead={lead || undefined}>
       <p>
         Synergy Business Consultancy LLC (&ldquo;Synergy&rdquo;,
         &ldquo;we&rdquo;, &ldquo;our&rdquo;) is committed to protecting your

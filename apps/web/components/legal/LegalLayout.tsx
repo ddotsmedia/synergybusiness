@@ -3,10 +3,12 @@ import Link from "next/link";
 export function LegalLayout({
   title,
   updated,
+  lead,
   children,
 }: {
   title: string;
   updated: string;
+  lead?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -30,6 +32,12 @@ export function LegalLayout({
             and must be reviewed by your UAE legal counsel before publishing.
             Replace the placeholders with your final commercial terms.
           </div>
+
+          {lead && (
+            <p className="mb-8 text-base text-[#1a2b3c] leading-relaxed border-l-4 border-[#c9a84c] pl-5 py-1 italic">
+              {lead}
+            </p>
+          )}
 
           <article className="space-y-8 text-[15px] leading-relaxed text-[#1a2b3c] [&_h2]:font-display [&_h2]:text-2xl [&_h2]:text-[#0a2540] [&_h2]:mt-8 [&_h2]:mb-2 [&_h3]:font-display [&_h3]:text-lg [&_h3]:text-[#0a2540] [&_h3]:mt-6 [&_h3]:mb-1 [&_p]:my-3 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-3 [&_li]:my-1 [&_a]:text-[#c9a84c] [&_a]:underline">
             {children}

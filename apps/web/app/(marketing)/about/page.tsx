@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AboutContent } from "@/components/about/AboutContent";
+import { getPageContent } from "@/lib/site-content";
 
 export const metadata: Metadata = {
   title: "About Synergy Business",
@@ -8,6 +9,9 @@ export const metadata: Metadata = {
   alternates: { canonical: "/about" },
 };
 
-export default function AboutPage() {
-  return <AboutContent />;
+export const revalidate = 60;
+
+export default async function AboutPage() {
+  const content = await getPageContent("about");
+  return <AboutContent content={content} />;
 }

@@ -10,6 +10,12 @@ import {
   Crown,
   ArrowUpRight,
 } from "lucide-react";
+import type { Content } from "@/lib/site-content";
+
+function s(content: Content, key: string, fallback: string): string {
+  const v = content[key];
+  return typeof v === "string" && v.length > 0 ? v : fallback;
+}
 
 type Service = {
   icon: typeof Building2;
@@ -74,7 +80,19 @@ const SERVICES: Service[] = [
   },
 ];
 
-export function Services() {
+export function Services({ content = {} }: { content?: Content }) {
+  const eyebrow = s(content, "services.eyebrow", "What we do");
+  const title = s(
+    content,
+    "services.title",
+    "Every service you need to launch and operate in the UAE",
+  );
+  const description = s(
+    content,
+    "services.description",
+    "From your first trade licence to your Golden Visa — Synergy Business is your single point of contact across the Emirates.",
+  );
+
   return (
     <section id="services" className="py-20 sm:py-28 bg-[#f8f9fc]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -86,14 +104,13 @@ export function Services() {
           className="max-w-2xl"
         >
           <p className="text-sm font-semibold tracking-wide uppercase text-[#c9a84c]">
-            What we do
+            {eyebrow}
           </p>
           <h2 className="mt-3 font-display text-3xl sm:text-4xl text-[#0a2540]">
-            Every service you need to launch and operate in the UAE
+            {title}
           </h2>
           <p className="mt-4 text-[#6b7e96] leading-relaxed">
-            From your first trade licence to your Golden Visa — Synergy Business
-            is your single point of contact across the Emirates.
+            {description}
           </p>
         </motion.div>
 

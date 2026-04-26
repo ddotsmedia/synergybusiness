@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LegalLayout } from "@/components/legal/LegalLayout";
+import { getPageContent, getString } from "@/lib/site-content";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
@@ -8,9 +9,16 @@ export const metadata: Metadata = {
   alternates: { canonical: "/legal/terms" },
 };
 
-export default function Page() {
+export const revalidate = 60;
+
+export default async function Page() {
+  const content = await getPageContent("legal-terms");
+  const title = getString(content, "header.title", "Terms of Service");
+  const updated = getString(content, "header.updated", "January 2026");
+  const lead = getString(content, "header.lead", "");
+
   return (
-    <LegalLayout title="Terms of Service" updated="January 2026">
+    <LegalLayout title={title} updated={updated} lead={lead || undefined}>
       <p>
         These Terms of Service (&ldquo;Terms&rdquo;) govern your use of{" "}
         <a href="/">synergybusiness.ae</a> (the &ldquo;Site&rdquo;) and the

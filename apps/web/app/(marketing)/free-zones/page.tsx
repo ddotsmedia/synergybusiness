@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { FreeZoneIndex } from "@/components/free-zones/FreeZoneIndex";
-import { FREE_ZONES } from "@/lib/free-zones-data";
+import { getPublicFreeZones } from "@/lib/admin/entities";
 import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -10,11 +10,15 @@ export const metadata: Metadata = {
   alternates: { canonical: "/free-zones" },
 };
 
-export default function FreeZonesPage() {
+export const revalidate = 60;
+
+export default async function FreeZonesPage() {
+  const zones = await getPublicFreeZones();
+
   const itemListJsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    itemListElement: FREE_ZONES.map((z, i) => ({
+    itemListElement: zones.map((z, i) => ({
       "@type": "ListItem",
       position: i + 1,
       name: z.name,
@@ -24,7 +28,7 @@ export default function FreeZonesPage() {
 
   return (
     <>
-      <FreeZoneIndex />
+      <FreeZoneIndex zones={zones} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}

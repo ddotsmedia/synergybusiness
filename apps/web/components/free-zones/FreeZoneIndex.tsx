@@ -16,7 +16,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import {
-  FREE_ZONES,
   FREE_ZONE_CATEGORIES,
   FREE_ZONE_EMIRATES,
   type FreeZone,
@@ -29,14 +28,14 @@ const BANK_BADGE: Record<FreeZone["bankFriendliness"], string> = {
   Variable: "bg-zinc-500/10 text-zinc-700 border-zinc-300",
 };
 
-export function FreeZoneIndex() {
+export function FreeZoneIndex({ zones }: { zones: FreeZone[] }) {
   const [query, setQuery] = useState("");
   const [emirate, setEmirate] = useState<string | null>(null);
   const [category, setCategory] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return FREE_ZONES.filter((z) => {
+    return zones.filter((z) => {
       if (emirate && z.emirate !== emirate) return false;
       if (category && z.category !== category) return false;
       if (!q) return true;
@@ -71,7 +70,7 @@ export function FreeZoneIndex() {
           >
             <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/80 backdrop-blur">
               <span className="h-1.5 w-1.5 rounded-full bg-[#c9a84c]" />
-              UAE Free Zones · {FREE_ZONES.length} options compared
+              UAE Free Zones · {zones.length} options compared
             </span>
 
             <h1 className="mt-6 font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.05] tracking-tight">
@@ -145,7 +144,7 @@ export function FreeZoneIndex() {
             <span className="text-[#0a2540] font-semibold">
               {filtered.length}
             </span>{" "}
-            of {FREE_ZONES.length} free zones
+            of {zones.length} free zones
           </p>
 
           {filtered.length === 0 ? (

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { BlogIndex } from "@/components/blog/BlogIndex";
-import { listPosts } from "@/lib/integrations/sanity";
+import { listPublicPosts } from "@/lib/blog-source";
 import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export const revalidate = 300; // ISR — refresh from Sanity every 5 min in prod
 
 export default async function BlogPage() {
-  const posts = await listPosts();
+  const posts = await listPublicPosts();
 
   const blogJsonLd = {
     "@context": "https://schema.org",

@@ -3,6 +3,12 @@
 import { motion } from "framer-motion";
 import { ArrowRight, ShieldCheck, Clock, Users, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import type { Content } from "@/lib/site-content";
+
+function s(content: Content, key: string, fallback: string): string {
+  const v = content[key];
+  return typeof v === "string" && v.length > 0 ? v : fallback;
+}
 
 const TRUST_BADGES = [
   {
@@ -27,7 +33,21 @@ const TRUST_BADGES = [
   },
 ];
 
-export function Hero() {
+export function Hero({ content = {} }: { content?: Content }) {
+  const eyebrow = s(content, "hero.eyebrow", "Abu Dhabi · Dubai · Sharjah · RAK");
+  const titleMain = s(content, "hero.titleMain", "Set up your UAE business with");
+  const titleHighlight = s(content, "hero.titleHighlight", "Synergy");
+  const titleSubtitle = s(content, "hero.titleSubtitle", "Fast, simple, and trusted.");
+  const description = s(
+    content,
+    "hero.description",
+    "From mainland trade licenses and free-zone formation to PRO services, employment visas, and the UAE Golden Visa — Synergy Business handles every step from Abu Dhabi.",
+  );
+  const cta1Label = s(content, "hero.cta1Label", "Start your setup");
+  const cta1Href = s(content, "hero.cta1Href", "#contact");
+  const cta2Label = s(content, "hero.cta2Label", "Estimate my cost");
+  const cta2Href = s(content, "hero.cta2Href", "#calculator");
+
   return (
     <section className="relative overflow-hidden bg-navy-pattern text-white">
       <div className="absolute inset-0 pointer-events-none">
@@ -44,40 +64,36 @@ export function Hero() {
         >
           <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/80 backdrop-blur">
             <span className="h-1.5 w-1.5 rounded-full bg-[#c9a84c]" />
-            Abu Dhabi · Dubai · Sharjah · RAK
+            {eyebrow}
           </span>
 
           <h1 className="mt-6 font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.05] tracking-tight">
-            Set up your UAE business with{" "}
-            <span className="text-gold-gradient">Synergy</span>.
+            {titleMain}{" "}
+            <span className="text-gold-gradient">{titleHighlight}</span>.
             <br />
-            <span className="text-white/85">
-              Fast, simple, and trusted.
-            </span>
+            <span className="text-white/85">{titleSubtitle}</span>
           </h1>
 
           <p className="mt-6 text-base sm:text-lg text-white/75 max-w-2xl leading-relaxed">
-            From mainland trade licenses and free-zone formation to PRO
-            services, employment visas, and the UAE Golden Visa — Synergy
-            Business handles every step from Abu Dhabi.
+            {description}
           </p>
 
           <div className="mt-8 flex flex-col sm:flex-row gap-3">
             <Button
-              render={<a href="#contact" />}
+              render={<a href={cta1Href} />}
               size="lg"
               className="bg-[#c9a84c] hover:bg-[#b6962f] text-[#0a2540] font-semibold h-12 px-7"
             >
-              Start your setup
+              {cta1Label}
               <ArrowRight className="ml-1 h-4 w-4" />
             </Button>
             <Button
-              render={<a href="#calculator" />}
+              render={<a href={cta2Href} />}
               size="lg"
               variant="outline"
               className="h-12 px-7 border-white/30 bg-white/5 text-white hover:bg-white/10 hover:text-white"
             >
-              Estimate my cost
+              {cta2Label}
             </Button>
           </div>
         </motion.div>
