@@ -29,11 +29,24 @@ You need:
 2. **Root SSH access** to it (Hostinger emails the credentials when the VPS
    is provisioned).
 3. **DNS records** pointing to the VPS:
-   - `A     @     <vps-ip>`
-   - `A     www   <vps-ip>`
+   - `A     @       <vps-ip>` — public marketing site
+   - `A     www     <vps-ip>` — alias of the public site
+   - `A     admin   <vps-ip>` — admin panel (separate subdomain)
+
    Add these in **hPanel → Domains → synergybusiness.ae → DNS / Manage**.
    Wait 5–10 minutes for them to propagate before running the installer
-   (otherwise certbot will fail).
+   (otherwise certbot will skip the missing ones and you'll need to re-run).
+
+   The setup serves two domains from one Next.js process:
+
+   | URL                                  | Routes                       |
+   | ------------------------------------ | ---------------------------- |
+   | `https://synergybusiness.ae`         | Public marketing + `/portal` |
+   | `https://www.synergybusiness.ae`     | (alias)                      |
+   | `https://admin.synergybusiness.ae/admin` | Admin panel              |
+
+   `synergybusiness.ae/admin` redirects to the admin subdomain — you can't
+   accidentally expose the admin panel on the public domain.
 
    Confirm with:
    ```bash

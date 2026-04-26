@@ -23,6 +23,7 @@ param(
     [string]$VpsUser = "root",
     [string]$LeEmail,
     [string]$Domain = "synergybusiness.ae",
+    [string]$AdminDomain = "",
     [string]$RepoUrl = "https://github.com/ddotsmedia/synergybusiness.git",
     [string]$Branch = "main",
     [string]$GithubToken = "",
@@ -30,6 +31,8 @@ param(
     [switch]$SkipInstall,
     [switch]$NoDnsCheck
 )
+
+if (-not $AdminDomain) { $AdminDomain = "admin.$Domain" }
 
 $ErrorActionPreference = "Stop"
 
@@ -69,12 +72,22 @@ if (-not $GithubToken) {
 }
 
 Write-Step "Configuration"
-Write-OK "  Domain:    $Domain"
+Write-OK "  Public:    https://$Domain"
+Write-OK "  Admin:     https://$AdminDomain/admin"
 Write-OK "  VPS:       ${VpsUser}@${VpsIp}"
 Write-OK "  LE email:  $LeEmail"
 Write-OK "  Repo:      $RepoUrl"
 Write-OK "  Branch:    $Branch"
 Write-OK "  Visibility: $(if ($GithubToken) { 'private (token supplied)' } else { 'public' })"
+
+Write-Warn ""
+Write-Warn "DNS records you need at hPanel (Domains -> synergybusiness.ae -> Manage DNS):"
+Write-Warn "  A   @       $VpsIp"
+Write-Warn "  A   www     $VpsIp"
+Write-Warn "  A   admin   $VpsIp     <- new, for the admin panel"
+Write-Warn ""
+Write-Warn "If admin DNS isn't ready yet, the install will still finish (HTTP only for admin)."
+Write-Warn "Add the record at any time and re-run this script -- certbot will pick it up."
 
 # ----- 2. locate repo ----------------------------------------------------
 
@@ -147,21 +160,22 @@ if (-not $SkipPush) {
 # ----- 4. DNS sanity check ----------------------------------------------
 
 if (-not $NoDnsCheck) {
-    Write-Step "Checking DNS for $Domain"
-    try {
-        $resolved = (Resolve-DnsName $Domain -Type A -ErrorAction Stop -DnsOnly |
-                     Where-Object Type -eq "A" |
-                     Select-Object -ExpandProperty IPAddress -First 1)
-        if ($resolved -eq $VpsIp) {
-            Write-OK "$Domain -> $VpsIp"
-        } else {
-            Write-Warn "$Domain -> $resolved (expected $VpsIp)"
-            Write-Warn "DNS not fully propagated yet. The install will run; certbot may fail at the SSL step."
-            Write-Warn "If it fails, wait ~10 min and re-run:"
-            Write-Warn "  ssh ${VpsUser}@${VpsIp} `"sudo certbot --nginx -d $Domain -d www.$Domain --non-interactive --agree-tos -m $LeEmail`""
+    Write-Step "Checking DNS"
+    foreach ($host in @($Domain, "www.$Domain", $AdminDomain)) {
+        try {
+            $resolved = (Resolve-DnsName $host -Type A -ErrorAction Stop -DnsOnly |
+                         Where-Object Type -eq "A" |
+                         Select-Object -ExpandProperty IPAddress -First 1)
+            if ($resolved -eq $VpsIp) {
+                Write-OK "$host -> $VpsIp"
+            } elseif ($resolved) {
+                Write-Warn "$host -> $resolved (expected $VpsIp)"
+            } else {
+                Write-Warn "$host -> no A record yet"
+            }
+        } catch {
+            Write-Warn "$host -> not resolvable (add an A record at hPanel)"
         }
-    } catch {
-        Write-Warn "Could not resolve $Domain. Make sure A records for @ and www point to $VpsIp at hPanel -> DNS."
     }
 }
 
@@ -196,7 +210,7 @@ Write-OK "Streaming output below..."
 Write-Host ""
 
 # Use sudo via -t for password prompt, exec the script
-$remoteCmd = "sudo DOMAIN=$Domain LE_EMAIL=$LeEmail REPO_URL='$effectiveRepoUrl' bash /tmp/install-vps.sh"
+$remoteCmd = "sudo DOMAIN=$Domain ADMIN_DOMAIN=$AdminDomain LE_EMAIL=$LeEmail REPO_URL='$effectiveRepoUrl' bash /tmp/install-vps.sh"
 ssh -t "${VpsUser}@${VpsIp}" $remoteCmd
 
 if ($LASTEXITCODE -ne 0) {
@@ -211,8 +225,9 @@ if ($LASTEXITCODE -ne 0) {
 
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Green
-Write-Host "  Done! Your site is live:" -ForegroundColor Green
-Write-Host "    https://$Domain" -ForegroundColor Green
+Write-Host "  Done! Live URLs:" -ForegroundColor Green
+Write-Host "    Public:  https://$Domain" -ForegroundColor Green
+Write-Host "    Admin:   https://$AdminDomain/admin" -ForegroundColor Green
 Write-Host "============================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "Next steps:"

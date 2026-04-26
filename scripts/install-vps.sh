@@ -19,6 +19,7 @@ set -euo pipefail
 
 DOMAIN="${DOMAIN:-synergybusiness.ae}"
 WWW_DOMAIN="www.${DOMAIN}"
+ADMIN_DOMAIN="${ADMIN_DOMAIN:-admin.${DOMAIN}}"
 LE_EMAIL="${LE_EMAIL:-}"
 REPO_URL="${REPO_URL:-}"
 APP_USER="${APP_USER:-synergy}"
@@ -82,6 +83,7 @@ save_state() {
   install -m 600 /dev/null "${STATE_FILE}"
   cat > "${STATE_FILE}" <<EOF
 DOMAIN=${DOMAIN}
+ADMIN_DOMAIN=${ADMIN_DOMAIN}
 APP_USER=${APP_USER}
 APP_DIR=${APP_DIR}
 PG_DB=${PG_DB}
@@ -109,7 +111,8 @@ load_state
 prompt_if_empty LE_EMAIL "Email for Let's Encrypt SSL notifications"
 
 log "Configuration"
-ok "Domain:           ${DOMAIN}"
+ok "Public domain:    ${DOMAIN} (+ ${WWW_DOMAIN})"
+ok "Admin domain:     ${ADMIN_DOMAIN}"
 ok "Email:            ${LE_EMAIL}"
 ok "App user:         ${APP_USER}"
 ok "App directory:    ${APP_DIR}"
@@ -333,6 +336,7 @@ fi
 sed \
   -e "s|__DOMAIN__|${DOMAIN}|g" \
   -e "s|__WWW_DOMAIN__|${WWW_DOMAIN}|g" \
+  -e "s|__ADMIN_DOMAIN__|${ADMIN_DOMAIN}|g" \
   -e "s|__APP_PORT__|${APP_PORT}|g" \
   "${TEMPLATE}" > "${NGINX_SITE}"
 
@@ -345,16 +349,53 @@ ok "nginx serving HTTP on :80"
 
 # -------- 11. SSL via certbot ----------------------------------------------
 
-if ! [[ -d "/etc/letsencrypt/live/${DOMAIN}" ]]; then
-  log "Requesting SSL certificate for ${DOMAIN}, ${WWW_DOMAIN}"
-  certbot --nginx \
-    --non-interactive --agree-tos \
-    --redirect \
-    --email "${LE_EMAIL}" \
-    -d "${DOMAIN}" -d "${WWW_DOMAIN}" \
-    || warn "Certbot failed — make sure DNS A records for ${DOMAIN} and ${WWW_DOMAIN} point to this VPS, then re-run."
+# Resolve which domains' DNS already points at this server. Certbot needs
+# every -d domain to resolve to us, otherwise the http-01 challenge fails.
+SERVER_IP="$(curl -fsS https://api.ipify.org 2>/dev/null || hostname -I | awk '{print $1}')"
+log "This server's public IP: ${SERVER_IP:-<unknown>}"
+
+dns_points_here() {
+  local host="$1"
+  local resolved
+  resolved="$(getent hosts "$host" | awk '{print $1}' | head -1)"
+  [[ -n "$resolved" && "$resolved" == "$SERVER_IP" ]]
+}
+
+CERT_ARGS=("-d" "${DOMAIN}")
+if dns_points_here "${WWW_DOMAIN}"; then
+  CERT_ARGS+=("-d" "${WWW_DOMAIN}")
+  ok "DNS OK: ${WWW_DOMAIN}"
 else
-  ok "Certificate already issued"
+  warn "DNS not pointing here yet for ${WWW_DOMAIN} — skipping in cert."
+fi
+if dns_points_here "${ADMIN_DOMAIN}"; then
+  CERT_ARGS+=("-d" "${ADMIN_DOMAIN}")
+  ok "DNS OK: ${ADMIN_DOMAIN}"
+else
+  warn "DNS not pointing here yet for ${ADMIN_DOMAIN} — skipping in cert."
+  warn "Add an A record: ${ADMIN_DOMAIN} -> ${SERVER_IP} at hPanel, then re-run."
+fi
+
+if ! dns_points_here "${DOMAIN}"; then
+  warn "DNS for ${DOMAIN} doesn't resolve to ${SERVER_IP} either."
+  warn "Skipping SSL — site will run on HTTP. Add the A records and re-run this script."
+else
+  if [[ -d "/etc/letsencrypt/live/${DOMAIN}" ]]; then
+    log "Expanding existing certificate to cover all live domains"
+    certbot --nginx \
+      --non-interactive --agree-tos --redirect \
+      --expand \
+      --email "${LE_EMAIL}" \
+      "${CERT_ARGS[@]}" \
+      || warn "certbot --expand failed; existing cert remains valid."
+  else
+    log "Issuing new SSL certificate"
+    certbot --nginx \
+      --non-interactive --agree-tos --redirect \
+      --email "${LE_EMAIL}" \
+      "${CERT_ARGS[@]}" \
+      || warn "Certbot failed — site will run on HTTP. Re-run after fixing DNS."
+  fi
 fi
 
 # Renewal — Ubuntu installs a systemd timer automatically with the certbot
@@ -381,7 +422,8 @@ ${C_GREEN}======================================================================
 ${C_GREEN}  Synergy Business is live!${C_RESET}
 ${C_GREEN}========================================================================${C_RESET}
 
-  Site:            https://${DOMAIN}
+  Public site:     https://${DOMAIN}
+  Admin panel:     https://${ADMIN_DOMAIN}/admin
   App user:        ${APP_USER}
   App directory:   ${APP_DIR}
   Database:        postgresql://${PG_USER}@127.0.0.1/${PG_DB}
