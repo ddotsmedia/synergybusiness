@@ -64,6 +64,21 @@ export const invoiceStatus = pgEnum("invoice_status", [
   "overdue",
 ]);
 
+export const userRole = pgEnum("user_role", [
+  "admin",
+  "consultant",
+  "client",
+]);
+
+export const activityEntityType = pgEnum("activity_entity_type", [
+  "lead",
+  "application",
+  "document",
+  "invoice",
+  "user",
+  "system",
+]);
+
 /* ----------------------------------------------------------------- tables */
 
 export const users = pgTable("users", {
@@ -72,6 +87,7 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
   phone: text("phone"),
+  role: userRole("role").notNull().default("client"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -105,10 +121,26 @@ export const applications = pgTable("applications", {
   estimatedCompletion: timestamp("estimated_completion", {
     withTimezone: true,
   }),
+  assignedToClerkId: text("assigned_to_clerk_id"),
+  assignedToName: text("assigned_to_name"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const activityLog = pgTable("activity_log", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  actorClerkId: text("actor_clerk_id"),
+  actorEmail: text("actor_email"),
+  actorName: text("actor_name"),
+  action: text("action").notNull(),
+  entityType: activityEntityType("entity_type").notNull(),
+  entityId: text("entity_id"),
+  metadata: jsonb("metadata").$type<Record<string, unknown>>().default({}),
+  createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
 });
@@ -154,3 +186,5 @@ export type NewDbLead = typeof leads.$inferInsert;
 export type DbApplication = typeof applications.$inferSelect;
 export type DbDocument = typeof documents.$inferSelect;
 export type DbInvoice = typeof invoices.$inferSelect;
+export type DbActivity = typeof activityLog.$inferSelect;
+export type NewDbActivity = typeof activityLog.$inferInsert;
