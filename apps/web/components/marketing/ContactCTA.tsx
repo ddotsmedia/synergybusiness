@@ -16,6 +16,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { Content } from "@/lib/site-content";
+
+function s(content: Content, key: string, fallback: string): string {
+  const v = content[key];
+  return typeof v === "string" && v.length > 0 ? v : fallback;
+}
 
 const SERVICES = [
   { value: "mainland", label: "Mainland Setup" },
@@ -37,7 +43,17 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function ContactCTA() {
+export function ContactCTA({ content = {} }: { content?: Content }) {
+  const whatsappLink = s(
+    content,
+    "channels.whatsappLink",
+    "https://wa.me/971500000000",
+  );
+  const phoneDisplay = s(content, "channels.phone", "+971 2 000 0000");
+  const phoneTel = phoneDisplay.replace(/\s/g, "");
+  const hours = s(content, "channels.hours", "Sun–Thu · 9:00 – 18:00 GST");
+  const email = s(content, "channels.email", "hello@synergybusiness.ae");
+
   const [submitted, setSubmitted] = useState(false);
 
   const {
@@ -116,7 +132,7 @@ export function ContactCTA() {
 
             <div className="mt-10 space-y-4">
               <a
-                href="https://wa.me/971500000000"
+                href={whatsappLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-4 rounded-xl bg-[#0a2540] hover:bg-[#071a2e] px-5 py-4 text-white transition-all hover:translate-x-1"
@@ -132,28 +148,26 @@ export function ContactCTA() {
                 </div>
               </a>
               <a
-                href="tel:+97120000000"
+                href={`tel:${phoneTel}`}
                 className="flex items-center gap-4 rounded-xl bg-white/10 hover:bg-white/15 backdrop-blur border border-white/20 px-5 py-4 text-white transition-all"
               >
                 <div className="h-11 w-11 rounded-full bg-white/15 flex items-center justify-center">
                   <Phone className="h-5 w-5" />
                 </div>
                 <div>
-                  <div className="font-medium">+971 2 000 0000</div>
-                  <div className="text-xs text-white/70">
-                    Sun–Thu · 9:00 – 18:00 GST
-                  </div>
+                  <div className="font-medium">{phoneDisplay}</div>
+                  <div className="text-xs text-white/70">{hours}</div>
                 </div>
               </a>
               <a
-                href="mailto:hello@synergybusiness.ae"
+                href={`mailto:${email}`}
                 className="flex items-center gap-4 rounded-xl bg-white/10 hover:bg-white/15 backdrop-blur border border-white/20 px-5 py-4 text-white transition-all"
               >
                 <div className="h-11 w-11 rounded-full bg-white/15 flex items-center justify-center">
                   <Mail className="h-5 w-5" />
                 </div>
                 <div>
-                  <div className="font-medium">hello@synergybusiness.ae</div>
+                  <div className="font-medium">{email}</div>
                   <div className="text-xs text-white/70">
                     We reply within 1 business hour
                   </div>

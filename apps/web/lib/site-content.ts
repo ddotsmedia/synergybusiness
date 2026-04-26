@@ -17,18 +17,15 @@ import { siteContent } from "@synergybusiness/db/schema";
 export type ContentValue = string | string[] | null;
 export type Content = Record<string, ContentValue>;
 
-const cache = new Map<string, { content: Content; expires: number }>();
-const TTL_MS = 5_000; // tiny in-process cache to dedupe per-render lookups
-
+/**
+ * Reads the editable content for one page from Postgres. We rely on
+ * `revalidatePath` in the save action to invalidate the page cache, so
+ * we deliberately don't add an extra in-process cache here -- the
+ * combination caused stale reads after admin edits.
+ */
 export async function getPageContent(pageKey: string): Promise<Content> {
-  const cached = cache.get(pageKey);
-  if (cached && cached.expires > Date.now()) return cached.content;
-
   const db = getDb();
-  if (!db) {
-    cache.set(pageKey, { content: {}, expires: Date.now() + TTL_MS });
-    return {};
-  }
+  if (!db) return {};
 
   try {
     const rows = await db
@@ -39,10 +36,11 @@ export async function getPageContent(pageKey: string): Promise<Content> {
     const content: Content = {};
     const prefix = `${pageKey}.`;
     for (const r of rows) {
-      const subKey = r.key.startsWith(prefix) ? r.key.slice(prefix.length) : r.key;
+      const subKey = r.key.startsWith(prefix)
+        ? r.key.slice(prefix.length)
+        : r.key;
       content[subKey] = r.value as ContentValue;
     }
-    cache.set(pageKey, { content, expires: Date.now() + TTL_MS });
     return content;
   } catch (err) {
     console.error("[site-content] DB error, returning defaults:", err);

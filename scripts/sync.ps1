@@ -36,6 +36,20 @@ function Write-Warn ($m) { Write-Host "    $m" -ForegroundColor Yellow }
 function Write-Err  ($m) { Write-Host "!!  $m" -ForegroundColor Red }
 function Die        ($m) { Write-Err $m; exit 1 }
 
+# Windows OpenSSH refuses to use a private key file that any other user can
+# read. Newly-created files in %USERPROFILE%\.ssh inherit the home-folder
+# ACL which usually includes "Authenticated Users" -- so we explicitly
+# strip inheritance and grant only the current user.
+function Set-StrictKeyPermissions ($path) {
+    if (-not (Test-Path $path)) { return }
+    $me = (whoami).Trim()
+    & icacls $path /inheritance:r       | Out-Null
+    & icacls $path /grant:r "${me}:(F)" | Out-Null
+    foreach ($principal in @("BUILTIN\Users", "Authenticated Users", "Everyone")) {
+        & icacls $path /remove $principal 2>$null | Out-Null
+    }
+}
+
 # --- 0 prereqs ------------------------------------------------------------
 
 Write-Step "Checking prerequisites"
@@ -84,6 +98,12 @@ if (-not (Test-Path $KeyPath)) {
 } else {
     Write-OK "Reusing existing key at $KeyPath"
 }
+
+# Always lock the file down. Newly-generated keys inherit the home-folder
+# ACL which Windows OpenSSH rejects ("Bad permissions / UNPROTECTED PRIVATE
+# KEY FILE"). Re-runs also fix keys that were created before this fix.
+Set-StrictKeyPermissions $KeyPath
+Write-OK "Locked $KeyPath to current user only"
 
 if (-not (Test-Path $pubPath)) {
     Die "Public key missing at $pubPath. Delete the private key and re-run to regenerate."

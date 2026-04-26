@@ -14,7 +14,13 @@ import { getPageContent } from "@/lib/site-content";
 export const revalidate = 60;
 
 export default async function Home() {
-  const content = await getPageContent("home");
+  // Home page content + contact content. The home contact strip reuses
+  // the same fields edited on /admin/content/contact so admins only
+  // maintain phone/email in one place.
+  const [content, contactContent] = await Promise.all([
+    getPageContent("home"),
+    getPageContent("contact"),
+  ]);
 
   const faqJsonLd = {
     "@context": "https://schema.org",
@@ -38,7 +44,7 @@ export default async function Home() {
       <Testimonials />
       <CalculatorTeaser />
       <FAQ />
-      <ContactCTA />
+      <ContactCTA content={contactContent} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
