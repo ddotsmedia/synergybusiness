@@ -208,6 +208,16 @@ if [[ ! -d "${APP_DIR}" ]]; then
   fi
 else
   ok "Repo found at ${APP_DIR}"
+  # If this is a git checkout, pull latest so re-runs pick up new commits
+  # (e.g. config fixes pushed after a failed first install).
+  if [[ -d "${APP_DIR}/.git" ]]; then
+    log "Pulling latest from origin"
+    if [[ -n "${REPO_URL}" ]]; then
+      sudo -u "${APP_USER}" -H bash -c "cd ${APP_DIR} && git remote set-url origin '${REPO_URL}'" || true
+    fi
+    sudo -u "${APP_USER}" -H bash -c "cd ${APP_DIR} && git fetch origin && git reset --hard origin/HEAD" \
+      || warn "git pull failed; continuing with on-disk code"
+  fi
 fi
 chown -R "${APP_USER}:${APP_USER}" "${APP_DIR}"
 
