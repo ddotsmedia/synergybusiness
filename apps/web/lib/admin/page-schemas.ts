@@ -444,6 +444,297 @@ export const PAGE_SCHEMAS: PageSchema[] = [
   },
 ];
 
+PAGE_SCHEMAS.push(
+  {
+    slug: "book",
+    title: "Book an Appointment",
+    description:
+      "/book — hero, perks, 'what to expect', office hours. Form labels stay in code.",
+    publicUrl: "/book",
+    sections: [
+      {
+        title: "Hero",
+        fields: [
+          {
+            key: "hero.eyebrow",
+            type: "text",
+            label: "Eyebrow chip",
+            defaultValue: "Free 30-minute consultation · No obligation",
+          },
+          {
+            key: "hero.titleMain",
+            type: "text",
+            label: "Title — main",
+            defaultValue: "Book an",
+          },
+          {
+            key: "hero.titleHighlight",
+            type: "text",
+            label: "Title — gold word",
+            defaultValue: "Appointment",
+          },
+          {
+            key: "hero.description",
+            type: "textarea",
+            label: "Description",
+            defaultValue:
+              "Sit down with a Synergy Business setup specialist. We'll map out the right licence, free zone, visa quota, and approximate cost for your business — and answer every question you bring.",
+            rows: 4,
+          },
+          {
+            key: "hero.perks",
+            type: "list",
+            label: "Hero perk badges",
+            defaultValue: [
+              "Confirmation within 1 business hour",
+              "In-person, phone, or video",
+              "English & Arabic specialists",
+            ],
+            itemLabel: "Perk",
+          },
+        ],
+      },
+      {
+        title: "Form intro",
+        fields: [
+          {
+            key: "form.title",
+            type: "text",
+            label: "Form heading",
+            defaultValue: "Choose a date & time",
+          },
+          {
+            key: "form.subtitle",
+            type: "text",
+            label: "Form subtitle",
+            defaultValue:
+              "We'll confirm the exact slot by WhatsApp or email within one business hour.",
+          },
+        ],
+      },
+      {
+        title: "Sidebar — talk now",
+        fields: [
+          {
+            key: "sidebar.talkNowTitle",
+            type: "text",
+            label: "Title",
+            defaultValue: "Prefer to talk now?",
+          },
+          {
+            key: "sidebar.talkNowDescription",
+            type: "textarea",
+            label: "Description",
+            defaultValue:
+              "Skip the form — message us on WhatsApp for an instant reply.",
+            rows: 2,
+          },
+        ],
+      },
+      {
+        title: "Sidebar — what to expect",
+        fields: [
+          {
+            key: "expect.title",
+            type: "text",
+            label: "Section title",
+            defaultValue: "What to expect",
+          },
+          {
+            key: "expect.steps",
+            type: "list",
+            label: "Steps (numbered automatically)",
+            defaultValue: [
+              "A 30-minute call to understand your business activity, nationality, and goals.",
+              "A short-list of the right licence, free zone, and visa structure for you.",
+              "A written cost estimate and a step-by-step plan — emailed the same day.",
+            ],
+            itemLabel: "Step",
+          },
+        ],
+      },
+      {
+        title: "Sidebar — office hours",
+        fields: [
+          {
+            key: "hours.title",
+            type: "text",
+            label: "Title",
+            defaultValue: "Office hours",
+          },
+          {
+            key: "hours.body",
+            type: "textarea",
+            label: "Body (use a blank line between days and time)",
+            defaultValue: "Sunday – Thursday\n09:00 – 18:00 GST",
+            rows: 3,
+          },
+          {
+            key: "hours.weekendNote",
+            type: "text",
+            label: "Weekend note",
+            defaultValue: "Friday & Saturday: WhatsApp only.",
+          },
+        ],
+      },
+    ],
+  },
+
+  {
+    slug: "cost-calculator",
+    title: "Cost Calculator",
+    description:
+      "/cost-calculator — hero text only. The estimator engine and outputs are computed from data, not editable here.",
+    publicUrl: "/cost-calculator",
+    sections: [
+      {
+        title: "Hero",
+        fields: [
+          {
+            key: "hero.eyebrow",
+            type: "text",
+            label: "Eyebrow chip",
+            defaultValue: "5-step estimator · ~60 seconds",
+          },
+          {
+            key: "hero.titleMain",
+            type: "text",
+            label: "Title — main",
+            defaultValue: "Itemised",
+          },
+          {
+            key: "hero.titleHighlight",
+            type: "text",
+            label: "Title — gold phrase",
+            defaultValue: "UAE setup cost",
+          },
+          {
+            key: "hero.titleAfter",
+            type: "text",
+            label: "Title — after the gold phrase",
+            defaultValue: "in 60 seconds.",
+          },
+          {
+            key: "hero.description",
+            type: "textarea",
+            label: "Description",
+            defaultValue:
+              "Answer five quick questions. We'll match you to the top three free zones and break down government fees, Synergy service fees and yearly renewals — no email required for the result.",
+            rows: 4,
+          },
+          {
+            key: "hero.badges",
+            type: "list",
+            label: "Trust badges (3 items recommended)",
+            defaultValue: [
+              "13 free zones compared",
+              "AED itemised",
+              "No registration needed",
+            ],
+            itemLabel: "Badge",
+          },
+        ],
+      },
+    ],
+  },
+
+  {
+    slug: "free-zones",
+    title: "Free Zones",
+    description:
+      "/free-zones — hero text only. The zone cards and details are managed under Free zones.",
+    publicUrl: "/free-zones",
+    sections: [
+      {
+        title: "Hero",
+        fields: [
+          {
+            key: "hero.eyebrowSuffix",
+            type: "text",
+            label: "Eyebrow suffix (after 'UAE Free Zones · N options compared')",
+            defaultValue: "options compared",
+            help: "The full chip reads 'UAE Free Zones · {count} {suffix}'. Edit only the suffix.",
+          },
+          {
+            key: "hero.titleMain",
+            type: "text",
+            label: "Title — main",
+            defaultValue: "Pick the right",
+          },
+          {
+            key: "hero.titleHighlight",
+            type: "text",
+            label: "Title — gold phrase",
+            defaultValue: "UAE free zone",
+          },
+          {
+            key: "hero.titleAfter",
+            type: "text",
+            label: "Title — after the gold phrase",
+            defaultValue: "for your business.",
+          },
+          {
+            key: "hero.description",
+            type: "textarea",
+            label: "Description",
+            defaultValue:
+              "Each zone is tuned to a specific industry, cost profile and visa quota. Search by name, filter by emirate, or browse by category — then book a free 30-minute matching call with Synergy.",
+            rows: 4,
+          },
+        ],
+      },
+    ],
+  },
+
+  {
+    slug: "blog",
+    title: "Blog index",
+    description:
+      "/blog — hero text only. Posts themselves are managed under Blog.",
+    publicUrl: "/blog",
+    sections: [
+      {
+        title: "Hero",
+        fields: [
+          {
+            key: "hero.eyebrow",
+            type: "text",
+            label: "Eyebrow chip",
+            defaultValue: "Synergy Insights",
+          },
+          {
+            key: "hero.titleMain",
+            type: "text",
+            label: "Title — main",
+            defaultValue: "Practical guides for",
+          },
+          {
+            key: "hero.titleHighlight",
+            type: "text",
+            label: "Title — gold phrase",
+            defaultValue: "UAE founders",
+          },
+          {
+            key: "hero.titleAfter",
+            type: "text",
+            label: "Title — after the gold phrase",
+            defaultValue: ".",
+            help: "Use a single character like '.' or '!' if you don't want trailing words.",
+          },
+          {
+            key: "hero.description",
+            type: "textarea",
+            label: "Description",
+            defaultValue:
+              "Setup decisions, free-zone comparisons, visa eligibility, banking and compliance — written by the consultants doing the work.",
+            rows: 3,
+          },
+        ],
+      },
+    ],
+  },
+);
+
 export function getPageSchema(slug: string): PageSchema | null {
   return PAGE_SCHEMAS.find((p) => p.slug === slug) ?? null;
 }

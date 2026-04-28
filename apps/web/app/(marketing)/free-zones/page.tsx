@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { FreeZoneIndex } from "@/components/free-zones/FreeZoneIndex";
 import { getPublicFreeZones } from "@/lib/admin/entities";
 import { absoluteUrl } from "@/lib/site";
+import { getPageContent } from "@/lib/site-content";
 
 export const metadata: Metadata = {
   title: "UAE Free Zones — ADGM, KIZAD, twofour54, RAKEZ & more",
@@ -13,7 +14,10 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 export default async function FreeZonesPage() {
-  const zones = await getPublicFreeZones();
+  const [zones, content] = await Promise.all([
+    getPublicFreeZones(),
+    getPageContent("free-zones"),
+  ]);
 
   const itemListJsonLd = {
     "@context": "https://schema.org",
@@ -28,7 +32,7 @@ export default async function FreeZonesPage() {
 
   return (
     <>
-      <FreeZoneIndex zones={zones} />
+      <FreeZoneIndex zones={zones} content={content} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}

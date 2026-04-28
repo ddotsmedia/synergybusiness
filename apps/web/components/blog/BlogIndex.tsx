@@ -10,6 +10,13 @@ import {
   type BlogCategory,
   type BlogPost,
 } from "@/lib/blog-data";
+import type { Content } from "@/lib/site-content";
+
+function getStr(c: Content | undefined, key: string, fallback: string) {
+  if (!c) return fallback;
+  const v = c[key];
+  return typeof v === "string" && v.length > 0 ? v : fallback;
+}
 
 function formatDate(iso: string) {
   const d = new Date(iso);
@@ -20,7 +27,31 @@ function formatDate(iso: string) {
   });
 }
 
-export function BlogIndex({ posts }: { posts: BlogPost[] }) {
+export function BlogIndex({
+  posts,
+  content,
+}: {
+  posts: BlogPost[];
+  content?: Content;
+}) {
+  const heroEyebrow = getStr(content, "hero.eyebrow", "Synergy Insights");
+  const heroTitleMain = getStr(
+    content,
+    "hero.titleMain",
+    "Practical guides for",
+  );
+  const heroTitleHighlight = getStr(
+    content,
+    "hero.titleHighlight",
+    "UAE founders",
+  );
+  const heroTitleAfter = getStr(content, "hero.titleAfter", ".");
+  const heroDescription = getStr(
+    content,
+    "hero.description",
+    "Setup decisions, free-zone comparisons, visa eligibility, banking and compliance — written by the consultants doing the work.",
+  );
+
   const [category, setCategory] = useState<BlogCategory | null>(null);
 
   const filtered = useMemo(
@@ -48,18 +79,17 @@ export function BlogIndex({ posts }: { posts: BlogPost[] }) {
           >
             <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/80 backdrop-blur">
               <span className="h-1.5 w-1.5 rounded-full bg-[#c9a84c]" />
-              Synergy Insights
+              {heroEyebrow}
             </span>
 
             <h1 className="mt-6 font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.05] tracking-tight">
-              Practical guides for{" "}
-              <span className="text-gold-gradient">UAE founders</span>.
+              {heroTitleMain}{" "}
+              <span className="text-gold-gradient">{heroTitleHighlight}</span>
+              {heroTitleAfter}
             </h1>
 
             <p className="mt-6 text-base sm:text-lg text-white/75 max-w-2xl leading-relaxed">
-              Setup decisions, free-zone comparisons, visa eligibility,
-              banking and compliance — written by the consultants doing the
-              work.
+              {heroDescription}
             </p>
           </motion.div>
         </div>

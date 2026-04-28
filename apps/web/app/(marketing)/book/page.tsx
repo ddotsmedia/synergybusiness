@@ -1,5 +1,6 @@
 import { buildMetadata } from "@/lib/seo";
 import { BookAppointmentPage } from "@/components/marketing/BookAppointmentPage";
+import { getPageContent } from "@/lib/site-content";
 
 export const metadata = buildMetadata({
   title: "Book an Appointment",
@@ -8,6 +9,9 @@ export const metadata = buildMetadata({
   path: "/book",
 });
 
-export default function Page() {
-  return <BookAppointmentPage />;
+export const revalidate = 60;
+
+export default async function Page() {
+  const content = await getPageContent("book");
+  return <BookAppointmentPage content={content} />;
 }

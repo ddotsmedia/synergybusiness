@@ -26,6 +26,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { whatsappLink, phoneNumbers } from "@/lib/site";
+import type { Content } from "@/lib/site-content";
+
+function getStr(c: Content | undefined, key: string, fallback: string) {
+  if (!c) return fallback;
+  const v = c[key];
+  return typeof v === "string" && v.length > 0 ? v : fallback;
+}
+
+function getArr(c: Content | undefined, key: string, fallback: string[]) {
+  if (!c) return fallback;
+  const v = c[key];
+  return Array.isArray(v) && v.length > 0 ? v : fallback;
+}
 
 const SERVICES = [
   { value: "mainland", label: "Mainland Setup" },
@@ -80,7 +93,62 @@ function formatDateLong(iso: string) {
   });
 }
 
-export function BookAppointmentPage() {
+export function BookAppointmentPage({ content }: { content?: Content }) {
+  const heroEyebrow = getStr(
+    content,
+    "hero.eyebrow",
+    "Free 30-minute consultation · No obligation",
+  );
+  const heroTitleMain = getStr(content, "hero.titleMain", "Book an");
+  const heroTitleHighlight = getStr(
+    content,
+    "hero.titleHighlight",
+    "Appointment",
+  );
+  const heroDescription = getStr(
+    content,
+    "hero.description",
+    "Sit down with a Synergy Business setup specialist. We'll map out the right licence, free zone, visa quota, and approximate cost for your business — and answer every question you bring.",
+  );
+  const heroPerks = getArr(content, "hero.perks", [
+    "Confirmation within 1 business hour",
+    "In-person, phone, or video",
+    "English & Arabic specialists",
+  ]);
+  const formTitle = getStr(content, "form.title", "Choose a date & time");
+  const formSubtitle = getStr(
+    content,
+    "form.subtitle",
+    "We'll confirm the exact slot by WhatsApp or email within one business hour.",
+  );
+  const talkNowTitle = getStr(
+    content,
+    "sidebar.talkNowTitle",
+    "Prefer to talk now?",
+  );
+  const talkNowDescription = getStr(
+    content,
+    "sidebar.talkNowDescription",
+    "Skip the form — message us on WhatsApp for an instant reply.",
+  );
+  const expectTitle = getStr(content, "expect.title", "What to expect");
+  const expectSteps = getArr(content, "expect.steps", [
+    "A 30-minute call to understand your business activity, nationality, and goals.",
+    "A short-list of the right licence, free zone, and visa structure for you.",
+    "A written cost estimate and a step-by-step plan — emailed the same day.",
+  ]);
+  const hoursTitle = getStr(content, "hours.title", "Office hours");
+  const hoursBody = getStr(
+    content,
+    "hours.body",
+    "Sunday – Thursday\n09:00 – 18:00 GST",
+  );
+  const hoursWeekend = getStr(
+    content,
+    "hours.weekendNote",
+    "Friday & Saturday: WhatsApp only.",
+  );
+
   const [submitted, setSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -183,33 +251,28 @@ export function BookAppointmentPage() {
           >
             <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/80 backdrop-blur">
               <span className="h-1.5 w-1.5 rounded-full bg-[#c9a84c]" />
-              Free 30-minute consultation · No obligation
+              {heroEyebrow}
             </span>
 
             <h1 className="mt-6 font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.05] tracking-tight">
-              Book an{" "}
-              <span className="text-gold-gradient">Appointment</span>
+              {heroTitleMain}{" "}
+              <span className="text-gold-gradient">{heroTitleHighlight}</span>
             </h1>
 
             <p className="mt-6 text-base sm:text-lg text-white/75 max-w-2xl leading-relaxed">
-              Sit down with a Synergy Business setup specialist. We&apos;ll map
-              out the right licence, free zone, visa quota, and approximate
-              cost for your business — and answer every question you bring.
+              {heroDescription}
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3 text-sm text-white/70">
-              <span className="inline-flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-[#c9a84c]" />
-                Confirmation within 1 business hour
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-[#c9a84c]" />
-                In-person, phone, or video
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-[#c9a84c]" />
-                English &amp; Arabic specialists
-              </span>
+              {heroPerks.map((perk) => (
+                <span
+                  key={perk}
+                  className="inline-flex items-center gap-2"
+                >
+                  <CheckCircle2 className="h-4 w-4 text-[#c9a84c]" />
+                  {perk}
+                </span>
+              ))}
             </div>
           </motion.div>
         </div>
@@ -228,12 +291,9 @@ export function BookAppointmentPage() {
               className="rounded-3xl border border-border bg-white p-6 sm:p-8 shadow-sm"
             >
               <h2 className="font-display text-2xl text-[#0a2540]">
-                Choose a date &amp; time
+                {formTitle}
               </h2>
-              <p className="mt-1 text-sm text-[#6b7e96]">
-                We&apos;ll confirm the exact slot by WhatsApp or email within
-                one business hour.
-              </p>
+              <p className="mt-1 text-sm text-[#6b7e96]">{formSubtitle}</p>
 
               <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -498,10 +558,10 @@ export function BookAppointmentPage() {
             >
               <div className="rounded-3xl border border-border bg-white p-6">
                 <h3 className="font-display text-lg text-[#0a2540]">
-                  Prefer to talk now?
+                  {talkNowTitle}
                 </h3>
                 <p className="mt-1 text-sm text-[#6b7e96]">
-                  Skip the form — message us on WhatsApp for an instant reply.
+                  {talkNowDescription}
                 </p>
                 <a
                   href={whatsappLink}
@@ -522,43 +582,26 @@ export function BookAppointmentPage() {
 
               <div className="rounded-3xl border border-border bg-white p-6">
                 <h3 className="font-display text-lg text-[#0a2540]">
-                  What to expect
+                  {expectTitle}
                 </h3>
                 <ul className="mt-3 space-y-3 text-sm text-[#1a2b3c]">
-                  <li className="flex gap-3">
-                    <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#c9a84c]/15 text-[#b6962f] text-[11px] font-bold">
-                      1
-                    </span>
-                    A 30-minute call to understand your business activity,
-                    nationality, and goals.
-                  </li>
-                  <li className="flex gap-3">
-                    <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#c9a84c]/15 text-[#b6962f] text-[11px] font-bold">
-                      2
-                    </span>
-                    A short-list of the right licence, free zone, and visa
-                    structure for you.
-                  </li>
-                  <li className="flex gap-3">
-                    <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#c9a84c]/15 text-[#b6962f] text-[11px] font-bold">
-                      3
-                    </span>
-                    A written cost estimate and a step-by-step plan — emailed
-                    the same day.
-                  </li>
+                  {expectSteps.map((step, i) => (
+                    <li key={i} className="flex gap-3">
+                      <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#c9a84c]/15 text-[#b6962f] text-[11px] font-bold">
+                        {i + 1}
+                      </span>
+                      {step}
+                    </li>
+                  ))}
                 </ul>
               </div>
 
               <div className="rounded-3xl bg-[#0a2540] text-white p-6">
-                <h3 className="font-display text-lg">Office hours</h3>
-                <p className="mt-2 text-sm text-white/70">
-                  Sunday – Thursday
-                  <br />
-                  09:00 – 18:00 GST
+                <h3 className="font-display text-lg">{hoursTitle}</h3>
+                <p className="mt-2 text-sm text-white/70 whitespace-pre-line">
+                  {hoursBody}
                 </p>
-                <p className="mt-2 text-xs text-white/50">
-                  Friday &amp; Saturday: WhatsApp only.
-                </p>
+                <p className="mt-2 text-xs text-white/50">{hoursWeekend}</p>
               </div>
             </motion.aside>
           </div>

@@ -41,6 +41,19 @@ import {
   type FreeZoneCategory,
   type FreeZoneEmirate,
 } from "@/lib/free-zones-data";
+import type { Content } from "@/lib/site-content";
+
+function getStr(c: Content | undefined, key: string, fallback: string) {
+  if (!c) return fallback;
+  const v = c[key];
+  return typeof v === "string" && v.length > 0 ? v : fallback;
+}
+
+function getArr(c: Content | undefined, key: string, fallback: string[]) {
+  if (!c) return fallback;
+  const v = c[key];
+  return Array.isArray(v) && v.length > 0 ? v : fallback;
+}
 
 const TOTAL_STEPS = 5;
 
@@ -851,7 +864,32 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function CalculatorIntro() {
+const INTRO_BADGE_ICONS = [MapPin, Wallet, Sparkles] as const;
+
+export function CalculatorIntro({ content }: { content?: Content }) {
+  const eyebrow = getStr(
+    content,
+    "hero.eyebrow",
+    "5-step estimator · ~60 seconds",
+  );
+  const titleMain = getStr(content, "hero.titleMain", "Itemised");
+  const titleHighlight = getStr(
+    content,
+    "hero.titleHighlight",
+    "UAE setup cost",
+  );
+  const titleAfter = getStr(content, "hero.titleAfter", "in 60 seconds.");
+  const description = getStr(
+    content,
+    "hero.description",
+    "Answer five quick questions. We'll match you to the top three free zones and break down government fees, Synergy service fees and yearly renewals — no email required for the result.",
+  );
+  const badges = getArr(content, "hero.badges", [
+    "13 free zones compared",
+    "AED itemised",
+    "No registration needed",
+  ]);
+
   return (
     <section className="relative overflow-hidden bg-navy-pattern text-white">
       <div className="absolute inset-0 pointer-events-none">
@@ -863,34 +901,29 @@ export function CalculatorIntro() {
         <div className="max-w-3xl">
           <span className="inline-flex items-center gap-2 rounded-full border border-[#c9a84c]/30 bg-[#c9a84c]/10 px-3 py-1 text-xs font-medium text-[#e8c96b]">
             <Wallet className="h-3.5 w-3.5" />
-            5-step estimator · ~60 seconds
+            {eyebrow}
           </span>
 
           <h1 className="mt-6 font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.05] tracking-tight">
-            Itemised{" "}
-            <span className="text-gold-gradient">UAE setup cost</span>{" "}
-            in 60 seconds.
+            {titleMain}{" "}
+            <span className="text-gold-gradient">{titleHighlight}</span>{" "}
+            {titleAfter}
           </h1>
 
           <p className="mt-5 text-base sm:text-lg text-white/75 max-w-2xl leading-relaxed">
-            Answer five quick questions. We&apos;ll match you to the top three
-            free zones and break down government fees, Synergy service fees
-            and yearly renewals — no email required for the result.
+            {description}
           </p>
 
           <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/65">
-            <span className="inline-flex items-center gap-1.5">
-              <MapPin className="h-3.5 w-3.5 text-[#c9a84c]" />
-              13 free zones compared
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <Wallet className="h-3.5 w-3.5 text-[#c9a84c]" />
-              AED itemised
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <Sparkles className="h-3.5 w-3.5 text-[#c9a84c]" />
-              No registration needed
-            </span>
+            {badges.map((b, i) => {
+              const Icon = INTRO_BADGE_ICONS[i % INTRO_BADGE_ICONS.length];
+              return (
+                <span key={b} className="inline-flex items-center gap-1.5">
+                  <Icon className="h-3.5 w-3.5 text-[#c9a84c]" />
+                  {b}
+                </span>
+              );
+            })}
           </div>
         </div>
       </div>

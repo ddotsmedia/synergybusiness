@@ -3,6 +3,7 @@ import {
   CalculatorIntro,
   CalculatorWizard,
 } from "@/components/calculator/CalculatorWizard";
+import { getPageContent } from "@/lib/site-content";
 
 export const metadata: Metadata = {
   title: "UAE Business Setup Cost Calculator",
@@ -11,10 +12,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "/cost-calculator" },
 };
 
-export default function Page() {
+export const revalidate = 60;
+
+export default async function Page() {
+  const content = await getPageContent("cost-calculator");
   return (
     <>
-      <CalculatorIntro />
+      <CalculatorIntro content={content} />
       <CalculatorWizard />
     </>
   );

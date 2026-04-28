@@ -20,6 +20,13 @@ import {
   FREE_ZONE_EMIRATES,
   type FreeZone,
 } from "@/lib/free-zones-data";
+import type { Content } from "@/lib/site-content";
+
+function getStr(c: Content | undefined, key: string, fallback: string) {
+  if (!c) return fallback;
+  const v = c[key];
+  return typeof v === "string" && v.length > 0 ? v : fallback;
+}
 
 const BANK_BADGE: Record<FreeZone["bankFriendliness"], string> = {
   Excellent: "bg-emerald-500/10 text-emerald-700 border-emerald-200",
@@ -28,7 +35,31 @@ const BANK_BADGE: Record<FreeZone["bankFriendliness"], string> = {
   Variable: "bg-zinc-500/10 text-zinc-700 border-zinc-300",
 };
 
-export function FreeZoneIndex({ zones }: { zones: FreeZone[] }) {
+export function FreeZoneIndex({
+  zones,
+  content,
+}: {
+  zones: FreeZone[];
+  content?: Content;
+}) {
+  const eyebrowSuffix = getStr(content, "hero.eyebrowSuffix", "options compared");
+  const heroTitleMain = getStr(content, "hero.titleMain", "Pick the right");
+  const heroTitleHighlight = getStr(
+    content,
+    "hero.titleHighlight",
+    "UAE free zone",
+  );
+  const heroTitleAfter = getStr(
+    content,
+    "hero.titleAfter",
+    "for your business.",
+  );
+  const heroDescription = getStr(
+    content,
+    "hero.description",
+    "Each zone is tuned to a specific industry, cost profile and visa quota. Search by name, filter by emirate, or browse by category — then book a free 30-minute matching call with Synergy.",
+  );
+
   const [query, setQuery] = useState("");
   const [emirate, setEmirate] = useState<string | null>(null);
   const [category, setCategory] = useState<string | null>(null);
@@ -70,19 +101,17 @@ export function FreeZoneIndex({ zones }: { zones: FreeZone[] }) {
           >
             <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/80 backdrop-blur">
               <span className="h-1.5 w-1.5 rounded-full bg-[#c9a84c]" />
-              UAE Free Zones · {zones.length} options compared
+              UAE Free Zones · {zones.length} {eyebrowSuffix}
             </span>
 
             <h1 className="mt-6 font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.05] tracking-tight">
-              Pick the right{" "}
-              <span className="text-gold-gradient">UAE free zone</span> for
-              your business.
+              {heroTitleMain}{" "}
+              <span className="text-gold-gradient">{heroTitleHighlight}</span>{" "}
+              {heroTitleAfter}
             </h1>
 
             <p className="mt-6 text-base sm:text-lg text-white/75 max-w-2xl leading-relaxed">
-              Each zone is tuned to a specific industry, cost profile and visa
-              quota. Search by name, filter by emirate, or browse by category
-              — then book a free 30-minute matching call with Synergy.
+              {heroDescription}
             </p>
           </motion.div>
         </div>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { BlogIndex } from "@/components/blog/BlogIndex";
 import { listPublicPosts } from "@/lib/blog-source";
 import { absoluteUrl } from "@/lib/site";
+import { getPageContent } from "@/lib/site-content";
 
 export const metadata: Metadata = {
   title: "Synergy Insights — UAE business setup guides",
@@ -13,7 +14,10 @@ export const metadata: Metadata = {
 export const revalidate = 300; // ISR — refresh from Sanity every 5 min in prod
 
 export default async function BlogPage() {
-  const posts = await listPublicPosts();
+  const [posts, content] = await Promise.all([
+    listPublicPosts(),
+    getPageContent("blog"),
+  ]);
 
   const blogJsonLd = {
     "@context": "https://schema.org",
@@ -32,7 +36,7 @@ export default async function BlogPage() {
 
   return (
     <>
-      <BlogIndex posts={posts} />
+      <BlogIndex posts={posts} content={content} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogJsonLd) }}
