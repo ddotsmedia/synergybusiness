@@ -72,30 +72,39 @@ const COLUMNS = [
 
 export function Footer() {
   return (
-    <footer className="bg-[#071a2e] text-white">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
-          <div className="col-span-2">
+    <footer className="relative bg-[#071a2e] text-white overflow-hidden">
+      {/* gold-tinted ambient bloom for depth */}
+      <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-72 w-[40rem] rounded-full bg-[#c9a84c]/8 blur-3xl pointer-events-none" />
+
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-10">
+        {/* gold rule above the brand block */}
+        <span
+          aria-hidden
+          className="block h-px w-16 bg-gradient-to-r from-[#c9a84c] to-transparent mb-12"
+        />
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10">
+          <div className="col-span-2 max-w-md">
             <Link href="/" className="flex items-center gap-2">
               <span className="font-display text-2xl text-white">Synergy</span>
               <span className="font-display text-2xl text-gold-gradient">
                 Business
               </span>
             </Link>
-            <p className="mt-4 text-sm text-white/65 leading-relaxed max-w-sm">
+            <p className="mt-5 text-sm text-white/65 leading-[1.7]">
               Abu Dhabi&apos;s trusted business setup consultancy. Trade
-              licenses, free zones, visa services and PRO support across the
-              UAE.
+              licences, free-zone formation, visa services and PRO support
+              across the UAE — under one roof since 2014.
             </p>
-            <div className="mt-5 flex items-start gap-2 text-sm text-white/65">
-              <MapPin className="h-4 w-4 mt-0.5 text-[#c9a84c]" />
+            <div className="mt-6 flex items-start gap-2 text-sm text-white/65">
+              <MapPin className="h-4 w-4 mt-0.5 text-[#c9a84c] flex-shrink-0" />
               <span>
                 Office 24, Al Maryah Tower, Al Maryah Island
                 <br />
                 Abu Dhabi, United Arab Emirates
               </span>
             </div>
-            <div className="mt-6 flex gap-3">
+            <div className="mt-7 flex gap-3">
               <a
                 href="https://linkedin.com"
                 target="_blank"
@@ -128,15 +137,15 @@ export function Footer() {
 
           {COLUMNS.map((col) => (
             <div key={col.title}>
-              <h4 className="font-display text-base text-white">
+              <h4 className="text-[11px] uppercase tracking-[0.18em] font-semibold text-[#c9a84c]">
                 {col.title}
               </h4>
-              <ul className="mt-4 space-y-2.5">
+              <ul className="mt-5 space-y-3">
                 {col.links.map((l) => (
                   <li key={l.label}>
                     <Link
                       href={l.href}
-                      className="text-sm text-white/65 hover:text-[#c9a84c] transition-colors"
+                      className="text-sm text-white/70 hover:text-white transition-colors"
                     >
                       {l.label}
                     </Link>
@@ -147,12 +156,15 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="mt-14 pt-6 border-t border-white/10 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between text-xs text-white/55">
+        <div className="mt-16 pt-7 border-t border-white/10 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between text-xs text-white/55">
           <p>
-            &copy; {new Date().getFullYear()} Synergy Business Consultancy
-            LLC. All rights reserved.
+            &copy; {new Date().getFullYear()} Synergy Business Consultancy LLC.
+            All rights reserved.
           </p>
-          <p>Licensed by Abu Dhabi Department of Economic Development.</p>
+          <p className="flex items-center gap-2">
+            <span className="h-1 w-1 rounded-full bg-[#c9a84c]" />
+            Licensed by the Abu Dhabi Department of Economic Development
+          </p>
         </div>
       </div>
     </footer>

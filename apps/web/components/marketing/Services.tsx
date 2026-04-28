@@ -94,58 +94,76 @@ export function Services({ content = {} }: { content?: Content }) {
   );
 
   return (
-    <section id="services" className="py-20 sm:py-28 bg-[#f8f9fc]">
+    <section id="services" className="py-24 sm:py-32 bg-[#fbf8f0]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.5 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
           className="max-w-2xl"
         >
-          <p className="text-sm font-semibold tracking-wide uppercase text-[#c9a84c]">
-            {eyebrow}
-          </p>
-          <h2 className="mt-3 font-display text-3xl sm:text-4xl text-[#0a2540]">
+          <div className="flex items-center gap-3">
+            <span
+              aria-hidden
+              className="block h-px w-10 bg-gradient-to-r from-transparent to-[#c9a84c]"
+            />
+            <span className="text-[11px] uppercase tracking-[0.2em] text-[#c9a84c] font-semibold">
+              {eyebrow}
+            </span>
+          </div>
+          <h2 className="mt-5 font-display text-3xl sm:text-4xl lg:text-[2.75rem] text-[#0a2540] tracking-[-0.01em] leading-[1.15]">
             {title}
           </h2>
-          <p className="mt-4 text-[#6b7e96] leading-relaxed">
+          <p className="mt-5 text-[#6b7e96] leading-[1.7]">
             {description}
           </p>
         </motion.div>
 
-        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-[#0a2540]/8 border border-[#0a2540]/8 rounded-[1.5rem] overflow-hidden">
           {SERVICES.map((service, idx) => (
             <motion.a
               key={service.title}
               href={service.href}
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.4 }}
+              viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 0.45, delay: idx * 0.05 }}
-              className="group relative rounded-2xl bg-white border border-border p-6 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-[#0a2540]/5 overflow-hidden"
+              className="group relative bg-white p-7 sm:p-8 transition-colors duration-300 hover:bg-[#0a2540] hover:text-white"
             >
-              <div className="absolute top-0 left-0 h-[3px] w-0 bg-gradient-to-r from-[#c9a84c] to-[#e8c96b] group-hover:w-full transition-all duration-500" />
-
-              <div className="flex items-start justify-between">
-                <div className="h-12 w-12 rounded-xl bg-[#0a2540]/5 text-[#0a2540] flex items-center justify-center group-hover:bg-[#0a2540] group-hover:text-[#c9a84c] transition-colors">
-                  <service.icon className="h-6 w-6" />
-                </div>
-                <ArrowUpRight className="h-5 w-5 text-[#6b7e96] group-hover:text-[#c9a84c] transition-colors" />
+              {/* numbered prefix */}
+              <div className="flex items-start justify-between mb-8">
+                <span
+                  className="font-display text-sm tracking-[0.2em] text-[#c9a84c] group-hover:text-[#e8c96b] transition-colors"
+                  aria-hidden
+                >
+                  {String(idx + 1).padStart(2, "0")}
+                </span>
+                <ArrowUpRight className="h-5 w-5 text-[#94a8c0] group-hover:text-[#c9a84c] transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </div>
 
-              <h3 className="mt-5 font-display text-xl text-[#0a2540]">
+              <div className="h-11 w-11 rounded-lg bg-[#c9a84c]/10 text-[#c9a84c] flex items-center justify-center group-hover:bg-[#c9a84c] group-hover:text-[#0a2540] transition-colors duration-300">
+                <service.icon className="h-5 w-5" />
+              </div>
+
+              <h3 className="mt-6 font-display text-xl sm:text-[1.4rem] text-[#0a2540] group-hover:text-white tracking-[-0.01em] leading-tight">
                 {service.title}
               </h3>
-              <p className="mt-2 text-sm text-[#6b7e96] leading-relaxed">
+              <p className="mt-3 text-sm text-[#6b7e96] group-hover:text-white/70 leading-relaxed">
                 {service.description}
               </p>
 
-              <ul className="mt-4 flex flex-wrap gap-2">
+              {/* gold rule between description and highlights */}
+              <span
+                aria-hidden
+                className="block h-px w-12 bg-[#c9a84c]/40 group-hover:bg-[#c9a84c] my-5 transition-colors"
+              />
+
+              <ul className="flex flex-wrap gap-1.5">
                 {service.highlights.map((h) => (
                   <li
                     key={h}
-                    className="text-xs px-2.5 py-1 rounded-full bg-[#f8f9fc] text-[#1a2b3c] border border-border"
+                    className="text-[11px] px-2 py-0.5 rounded text-[#1a2b3c] group-hover:text-white/85 bg-transparent border border-[#0a2540]/10 group-hover:border-white/20 transition-colors"
                   >
                     {h}
                   </li>
@@ -153,9 +171,9 @@ export function Services({ content = {} }: { content?: Content }) {
               </ul>
 
               {service.startingFromAed && (
-                <p className="mt-5 text-sm text-[#6b7e96]">
-                  Starting from{" "}
-                  <span className="font-semibold text-[#0a2540]">
+                <p className="mt-6 text-sm text-[#6b7e96] group-hover:text-white/70">
+                  From{" "}
+                  <span className="font-display text-[#0a2540] group-hover:text-[#e8c96b] transition-colors">
                     AED {service.startingFromAed.toLocaleString()}
                   </span>
                 </p>
