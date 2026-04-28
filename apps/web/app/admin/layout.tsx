@@ -44,7 +44,8 @@ export default async function AdminLayout({
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f9fc]">
+    // Warm cream surface — gold + navy sit against it better than cool gray.
+    <div className="min-h-screen bg-[#fbf8f0]">
       <AdminTopbar
         actor={{ name: actor.name, role: actor.role }}
         clerkConfigured={clerkConfigured}

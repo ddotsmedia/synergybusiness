@@ -55,14 +55,14 @@ export function AdminSidebar() {
   return (
     <nav
       aria-label="Admin navigation"
-      className="hidden lg:flex flex-col w-60 shrink-0 border-r border-border bg-white px-3 py-5 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto"
+      className="hidden lg:flex flex-col w-60 shrink-0 border-r border-[#c9a84c]/20 bg-[#0a2540] px-3 py-5 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto text-white"
     >
       <Link
         href="/admin"
         className="flex items-center gap-2 px-2 mb-5"
       >
-        <span className="font-display text-xl text-[#0a2540]">Synergy</span>
-        <span className="text-[10px] uppercase tracking-wider font-bold rounded bg-[#0a2540] text-[#c9a84c] px-1.5 py-0.5">
+        <span className="font-display text-xl text-white">Synergy</span>
+        <span className="text-[10px] uppercase tracking-wider font-bold rounded bg-[#c9a84c] text-[#0a2540] px-1.5 py-0.5">
           Admin
         </span>
       </Link>
@@ -70,7 +70,7 @@ export function AdminSidebar() {
       <div className="space-y-6">
         {SECTIONS.map((section) => (
           <div key={section.title}>
-            <p className="px-2 text-[11px] uppercase tracking-wider font-semibold text-[#6b7e96] mb-2">
+            <p className="px-2 text-[11px] uppercase tracking-wider font-semibold text-[#c9a84c] mb-2">
               {section.title}
             </p>
             <ul className="space-y-0.5">
@@ -85,14 +85,14 @@ export function AdminSidebar() {
                       className={cn(
                         "flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm transition-colors",
                         active
-                          ? "bg-[#0a2540] text-white"
-                          : "text-[#1a2b3c] hover:bg-[#eef1f6]",
+                          ? "bg-[#c9a84c] text-[#0a2540] font-semibold"
+                          : "text-white/80 hover:bg-white/10 hover:text-white",
                       )}
                     >
                       <item.icon
                         className={cn(
                           "h-4 w-4",
-                          active ? "text-[#c9a84c]" : "text-[#6b7e96]",
+                          active ? "text-[#0a2540]" : "text-[#c9a84c]",
                         )}
                       />
                       <span className="flex-1">{item.label}</span>
@@ -101,8 +101,8 @@ export function AdminSidebar() {
                           className={cn(
                             "text-[10px] font-bold rounded-full px-1.5 py-0.5",
                             active
-                              ? "bg-[#c9a84c] text-[#0a2540]"
-                              : "bg-[#0a2540]/10 text-[#0a2540]",
+                              ? "bg-[#0a2540] text-[#c9a84c]"
+                              : "bg-[#c9a84c]/20 text-[#c9a84c]",
                           )}
                         >
                           {item.badge}
@@ -117,8 +117,8 @@ export function AdminSidebar() {
         ))}
       </div>
 
-      <div className="mt-auto pt-6 text-xs text-[#6b7e96] px-2">
-        <Link href="/" className="hover:text-[#c9a84c]">
+      <div className="mt-auto pt-6 text-xs text-white/55 px-2 border-t border-[#c9a84c]/15">
+        <Link href="/" className="hover:text-[#c9a84c] block pt-3">
           Back to public site
         </Link>
       </div>
