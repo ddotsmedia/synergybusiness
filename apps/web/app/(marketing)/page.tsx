@@ -2,8 +2,8 @@ import { Hero } from "@/components/marketing/Hero";
 import { AuthorityStrip } from "@/components/marketing/AuthorityStrip";
 import { Services } from "@/components/marketing/Services";
 import { AnimatedStats } from "@/components/marketing/AnimatedStats";
-import { HowItWorks } from "@/components/marketing/HowItWorks";
-import { FreeZones } from "@/components/marketing/FreeZones";
+import { AboutUsSection } from "@/components/marketing/AboutUsSection";
+import { BookAppointment } from "@/components/marketing/BookAppointment";
 import { Testimonials } from "@/components/marketing/Testimonials";
 import { CalculatorTeaser } from "@/components/marketing/CalculatorTeaser";
 import { FAQ } from "@/components/marketing/FAQ";
@@ -43,8 +43,8 @@ export default async function Home() {
       <AuthorityStrip />
       <Services content={content} />
       <AnimatedStats />
-      <HowItWorks />
-      <FreeZones />
+      <AboutUsSection />
+      <BookAppointment />
       <Testimonials />
       <CalculatorTeaser />
       <FAQ />
