@@ -68,7 +68,7 @@ export function BookAppointment() {
 
             <div className="mt-10 flex flex-col sm:flex-row gap-3">
               <Button
-                render={<a href="/#contact" />}
+                render={<a href="/book" />}
                 size="lg"
                 className="bg-[#c9a84c] hover:bg-[#b6962f] text-[#0a2540] font-semibold h-12 px-7 shadow-[0_8px_30px_rgba(201,168,76,0.25)] hover:shadow-[0_12px_40px_rgba(201,168,76,0.35)] transition-shadow"
               >

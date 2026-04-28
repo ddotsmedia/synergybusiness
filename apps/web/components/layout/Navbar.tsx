@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 const NAV_LINKS = [
+  { href: "/book", label: "Book an Appointment" },
   { href: "/#services", label: "Services" },
   { href: "/#free-zones", label: "Free Zones" },
   { href: "/#process", label: "How It Works" },
@@ -76,10 +77,10 @@ export function Navbar() {
             Get a Quote
           </Button>
           <Button
-            render={<a href="/#contact" />}
+            render={<Link href="/book" />}
             className="bg-[#c9a84c] hover:bg-[#b6962f] text-[#0a2540] font-semibold"
           >
-            Start Setup
+            Book an Appointment
           </Button>
         </div>
 
@@ -138,11 +139,11 @@ export function Navbar() {
               <div className="p-5 flex flex-col gap-3 border-t border-border">
                 <Button
                   render={
-                    <a href="/#contact" onClick={() => setOpen(false)} />
+                    <Link href="/book" onClick={() => setOpen(false)} />
                   }
                   className="bg-[#c9a84c] hover:bg-[#b6962f] text-[#0a2540] font-semibold w-full"
                 >
-                  Start Setup
+                  Book an Appointment
                 </Button>
                 <Button
                   render={
