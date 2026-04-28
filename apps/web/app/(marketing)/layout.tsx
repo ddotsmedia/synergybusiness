@@ -20,7 +20,16 @@ export default function MarketingLayout({
       addressLocality: "Abu Dhabi",
       addressCountry: "AE",
     },
-    areaServed: ["Abu Dhabi", "Dubai", "Sharjah", "Ras Al Khaimah", "UAE"],
+    areaServed: [
+      "Abu Dhabi",
+      "Dubai",
+      "Sharjah",
+      "Ajman",
+      "Umm Al Quwain",
+      "Ras Al Khaimah",
+      "Fujairah",
+      "UAE",
+    ],
   };
 
   return (

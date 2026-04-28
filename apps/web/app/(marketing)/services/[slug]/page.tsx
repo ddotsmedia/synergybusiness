@@ -83,7 +83,16 @@ export default async function ServicePage({
       name: "Synergy Business",
       url: siteUrl,
     },
-    areaServed: ["Abu Dhabi", "Dubai", "United Arab Emirates"],
+    areaServed: [
+      "Abu Dhabi",
+      "Dubai",
+      "Sharjah",
+      "Ajman",
+      "Umm Al Quwain",
+      "Ras Al Khaimah",
+      "Fujairah",
+      "United Arab Emirates",
+    ],
     url: absoluteUrl(`/services/${slugTyped}`),
     ...(service.hero.startingPrice && {
       offers: {

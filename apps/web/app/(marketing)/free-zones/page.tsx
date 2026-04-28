@@ -7,7 +7,7 @@ import { getPageContent } from "@/lib/site-content";
 export const metadata: Metadata = {
   title: "UAE Free Zones — ADGM, KIZAD, twofour54, RAKEZ & more",
   description:
-    "Compare every major UAE free zone — Abu Dhabi, Dubai, Sharjah, RAK and beyond. Cost, visa quota, foreign ownership and banking acceptance side-by-side.",
+    "Compare every major UAE free zone across all 7 emirates — Abu Dhabi, Dubai, Sharjah, Ajman, Umm Al Quwain, Ras Al Khaimah and Fujairah. Cost, visa quota, foreign ownership and banking acceptance side-by-side.",
   alternates: { canonical: "/free-zones" },
 };
 

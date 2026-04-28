@@ -70,7 +70,7 @@ export const PAGE_SCHEMAS: PageSchema[] = [
             key: "hero.eyebrow",
             type: "text",
             label: "Eyebrow chip",
-            defaultValue: "Abu Dhabi · Dubai · Sharjah · RAK",
+            defaultValue: "Abu Dhabi · Dubai · Sharjah · Ajman · UAQ · RAK · Fujairah",
           },
           {
             key: "hero.titleMain",

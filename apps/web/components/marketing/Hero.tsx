@@ -14,7 +14,7 @@ export function Hero({ content = {} }: { content?: Content }) {
   const eyebrow = s(
     content,
     "hero.eyebrow",
-    "Abu Dhabi · Dubai · Sharjah · RAK",
+    "Abu Dhabi · Dubai · Sharjah · Ajman · UAQ · RAK · Fujairah",
   );
   const titleMain = s(
     content,

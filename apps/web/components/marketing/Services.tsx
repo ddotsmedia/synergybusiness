@@ -34,7 +34,7 @@ const SERVICES: Service[] = [
     icon: Building2,
     title: "Mainland Setup",
     description:
-      "DED / ADDED trade licences with 100% foreign ownership across Abu Dhabi, Dubai and the Northern Emirates.",
+      "DED / ADDED trade licences with 100% foreign ownership across all 7 emirates — Abu Dhabi, Dubai, Sharjah, Ajman, Umm Al Quwain, Ras Al Khaimah and Fujairah.",
     highlights: ["100% ownership", "All UAE markets", "Bank account assist"],
     href: "/services/mainland",
     startingFromAed: 12500,
@@ -219,7 +219,7 @@ export function Services({ content = {} }: { content?: Content }) {
         >
           <div
             ref={trackRef}
-            className="services-slider flex gap-4 sm:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 px-4 sm:px-6 lg:px-8"
+            className="flex gap-4 sm:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 px-4 sm:px-6 lg:px-8 [&::-webkit-scrollbar]:hidden"
             style={{
               scrollbarWidth: "none",
               msOverflowStyle: "none",
@@ -312,11 +312,6 @@ export function Services({ content = {} }: { content?: Content }) {
         </div>
       </div>
 
-      <style jsx>{`
-        .services-slider::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
     </section>
   );
 }
