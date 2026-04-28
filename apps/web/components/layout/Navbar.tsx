@@ -2,22 +2,32 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
-  { href: "/book", label: "Book an Appointment" },
-  { href: "/#services", label: "Services" },
+  { href: "/#services", label: "Services", dropdown: "services" as const },
   { href: "/#faq", label: "FAQ" },
   { href: "/#contact", label: "Contact" },
+];
+
+const SERVICE_LINKS = [
+  { href: "/services/mainland", label: "Mainland Setup" },
+  { href: "/services/free-zone", label: "Free Zone Formation" },
+  { href: "/services/offshore", label: "Offshore Companies" },
+  { href: "/services/pro-services", label: "PRO Services" },
+  { href: "/services/visa", label: "UAE Visa Services" },
+  { href: "/services/golden-visa", label: "UAE Golden Visa" },
 ];
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
+  const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -56,15 +66,62 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-7">
-          {NAV_LINKS.map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
-              className="text-sm text-[#1a2b3c] hover:text-[#c9a84c] transition-colors"
-            >
-              {l.label}
-            </a>
-          ))}
+          {NAV_LINKS.map((l) =>
+            l.dropdown === "services" ? (
+              <div
+                key={l.href}
+                className="relative"
+                onMouseEnter={() => setServicesOpen(true)}
+                onMouseLeave={() => setServicesOpen(false)}
+              >
+                <a
+                  href={l.href}
+                  className="inline-flex items-center gap-1 text-sm text-[#1a2b3c] hover:text-[#c9a84c] transition-colors"
+                  aria-haspopup="true"
+                  aria-expanded={servicesOpen}
+                >
+                  {l.label}
+                  <ChevronDown
+                    className={cn(
+                      "h-3.5 w-3.5 transition-transform",
+                      servicesOpen && "rotate-180",
+                    )}
+                  />
+                </a>
+                <AnimatePresence>
+                  {servicesOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 6 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute left-1/2 top-full -translate-x-1/2 pt-3"
+                    >
+                      <div className="w-72 rounded-xl border border-border bg-white shadow-xl p-2">
+                        {SERVICE_LINKS.map((s) => (
+                          <Link
+                            key={s.href}
+                            href={s.href}
+                            className="block rounded-lg px-3 py-2.5 text-sm text-[#1a2b3c] hover:bg-[#f6efd8] hover:text-[#0a2540] transition-colors"
+                          >
+                            {s.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <a
+                key={l.href}
+                href={l.href}
+                className="text-sm text-[#1a2b3c] hover:text-[#c9a84c] transition-colors"
+              >
+                {l.label}
+              </a>
+            ),
+          )}
         </nav>
 
         <div className="hidden md:flex items-center gap-3">
@@ -123,17 +180,60 @@ export function Navbar() {
                   <X className="h-5 w-5" />
                 </button>
               </div>
-              <nav className="flex-1 px-5 py-6 flex flex-col gap-1">
-                {NAV_LINKS.map((l) => (
-                  <a
-                    key={l.href}
-                    href={l.href}
-                    onClick={() => setOpen(false)}
-                    className="py-3 text-base text-[#1a2b3c] hover:text-[#c9a84c] border-b border-border/60"
-                  >
-                    {l.label}
-                  </a>
-                ))}
+              <nav className="flex-1 px-5 py-6 flex flex-col gap-1 overflow-y-auto">
+                {NAV_LINKS.map((l) =>
+                  l.dropdown === "services" ? (
+                    <div key={l.href} className="border-b border-border/60">
+                      <button
+                        type="button"
+                        onClick={() => setMobileServicesOpen((v) => !v)}
+                        className="w-full py-3 flex items-center justify-between text-base text-[#1a2b3c] hover:text-[#c9a84c]"
+                        aria-expanded={mobileServicesOpen}
+                      >
+                        <span>{l.label}</span>
+                        <ChevronDown
+                          className={cn(
+                            "h-4 w-4 transition-transform",
+                            mobileServicesOpen && "rotate-180",
+                          )}
+                        />
+                      </button>
+                      <AnimatePresence initial={false}>
+                        {mobileServicesOpen && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="pb-3 pl-3 flex flex-col">
+                              {SERVICE_LINKS.map((s) => (
+                                <Link
+                                  key={s.href}
+                                  href={s.href}
+                                  onClick={() => setOpen(false)}
+                                  className="py-2 text-sm text-[#1a2b3c] hover:text-[#c9a84c]"
+                                >
+                                  {s.label}
+                                </Link>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  ) : (
+                    <a
+                      key={l.href}
+                      href={l.href}
+                      onClick={() => setOpen(false)}
+                      className="py-3 text-base text-[#1a2b3c] hover:text-[#c9a84c] border-b border-border/60"
+                    >
+                      {l.label}
+                    </a>
+                  ),
+                )}
               </nav>
               <div className="p-5 flex flex-col gap-3 border-t border-border">
                 <Button
