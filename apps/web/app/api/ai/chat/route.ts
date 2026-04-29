@@ -1,12 +1,8 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+const SYSTEM_PROMPT = `You are Layla, a professional business setup consultant at Synergy Business, a leading consultancy in Abu Dhabi, UAE.
 
-const SYSTEM_PROMPT = `You are a professional business setup consultant at Synergy Business, a leading consultancy in Abu Dhabi, UAE.
-
-You help entrepreneurs and investors set up businesses in the UAE. You are knowledgeable about:
+You help entrepreneurs and investors set up businesses across all 7 UAE emirates: Abu Dhabi, Dubai, Sharjah, Ajman, Umm Al Quwain, Ras Al Khaimah and Fujairah. You are knowledgeable about:
 - Mainland company formation (DED/ADDED licensing)
 - Free zone setup (ADGM, KIZAD, twofour54, Masdar City, ADAFZ, RAKEZ, and others)
 - Offshore company formation
@@ -20,9 +16,9 @@ Guidelines:
 - Be concise, warm, and professional
 - Always give practical, specific answers
 - Quote approximate costs in AED when asked
-- After 2-3 exchanges, offer to connect them with a human consultant
+- After 2-3 exchanges, offer to connect them with a human consultant or to book a free 30-minute consultation at synergybusiness.ae/book
 - Never give legal or financial advice — refer complex matters to consultants
-- Always end responses under 150 words unless the question requires detail`;
+- Keep responses under 150 words unless the question requires detail`;
 
 type IncomingMessage = {
   role: "user" | "assistant";
@@ -32,6 +28,13 @@ type IncomingMessage = {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+function jsonError(error: string, status: number) {
+  return new Response(JSON.stringify({ error }), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
 export async function POST(req: Request) {
   try {
     const body = (await req.json()) as { messages?: IncomingMessage[] };
@@ -40,46 +43,52 @@ export async function POST(req: Request) {
       .map((m) => ({ role: m.role, content: m.content }));
 
     if (messages.length === 0) {
-      return new Response(
-        JSON.stringify({ error: "messages array is required" }),
-        { status: 400, headers: { "Content-Type": "application/json" } },
+      return jsonError("messages array is required", 400);
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return jsonError(
+        "GEMINI_API_KEY is not configured on the server",
+        503,
       );
     }
 
-    if (!process.env.ANTHROPIC_API_KEY) {
-      return new Response(
-        JSON.stringify({
-          error: "ANTHROPIC_API_KEY is not configured on the server",
-        }),
-        { status: 503, headers: { "Content-Type": "application/json" } },
-      );
+    const lastUser = [...messages].reverse().find((m) => m.role === "user");
+    if (!lastUser) {
+      return jsonError("last message must be from the user", 400);
     }
+    const history = messages.slice(0, messages.indexOf(lastUser));
 
-    const stream = client.messages.stream({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 500,
-      system: [
-        {
-          type: "text",
-          text: SYSTEM_PROMPT,
-          cache_control: { type: "ephemeral" },
-        },
-      ],
-      messages,
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash",
+      systemInstruction: SYSTEM_PROMPT,
     });
+
+    const chat = model.startChat({
+      history: history.map((m) => ({
+        role: m.role === "assistant" ? "model" : "user",
+        parts: [{ text: m.content }],
+      })),
+      generationConfig: {
+        maxOutputTokens: 500,
+        temperature: 0.7,
+      },
+    });
+
+    const result = await chat.sendMessageStream(lastUser.content);
 
     const encoder = new TextEncoder();
     const readable = new ReadableStream({
       async start(controller) {
         try {
-          for await (const chunk of stream) {
-            if (
-              chunk.type === "content_block_delta" &&
-              chunk.delta.type === "text_delta"
-            ) {
+          for await (const chunk of result.stream) {
+            const text = chunk.text();
+            if (text) {
               controller.enqueue(
                 encoder.encode(
-                  `data: ${JSON.stringify({ text: chunk.delta.text })}\n\n`,
+                  `data: ${JSON.stringify({ text })}\n\n`,
                 ),
               );
             }
@@ -107,10 +116,7 @@ export async function POST(req: Request) {
       },
     });
   } catch (error) {
-    console.error("AI Chat error:", error);
-    return new Response(
-      JSON.stringify({ error: "AI service unavailable" }),
-      { status: 500, headers: { "Content-Type": "application/json" } },
-    );
+    console.error("Gemini chat error:", error);
+    return jsonError("AI service unavailable", 500);
   }
 }

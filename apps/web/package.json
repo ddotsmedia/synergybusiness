@@ -15,6 +15,7 @@
     "@aws-sdk/s3-request-presigner": "^3.1037.0",
     "@base-ui/react": "^1.4.1",
     "@clerk/nextjs": "^7.2.7",
+    "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^5.2.2",
     "@sanity/client": "^7.22.0",
     "@synergybusiness/db": "workspace:*",
