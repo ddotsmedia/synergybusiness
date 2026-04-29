@@ -3,6 +3,7 @@ import { BlogIndex } from "@/components/blog/BlogIndex";
 import { listPublicPosts } from "@/lib/blog-source";
 import { absoluteUrl } from "@/lib/site";
 import { getPageContent } from "@/lib/site-content";
+import { breadcrumbLd } from "@/lib/jsonld";
 
 export const metadata: Metadata = {
   title: "Synergy Insights — UAE business setup guides",
@@ -40,6 +41,17 @@ export default async function BlogPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            breadcrumbLd([
+              { name: "Home", path: "/" },
+              { name: "Blog", path: "/blog" },
+            ]),
+          ),
+        }}
       />
     </>
   );

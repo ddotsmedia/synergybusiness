@@ -1,121 +1,135 @@
 # SEO Automation — Synergy Business
 
-Tailored SEO setup for the `apps/web` Next.js 16 (App Router) project.
-Goal: every new page gets correct sitemap entries, metadata, JSON-LD, robots
-rules, and OG image **automatically** — no manual steps per page.
+State of SEO on the `apps/web` Next.js 16 (App Router) project, and how it's
+wired up. Goal: every new page gets correct sitemap, metadata, JSON-LD,
+robots, OG image, and structured data — automatically.
 
-> ⚠️ This project is on **Next 16.2.4**. Prefer App Router file conventions
-> (`app/sitemap.ts`, `app/robots.ts`, `app/opengraph-image.tsx`). Do **not**
-> add `next-sitemap` — it would conflict with the native `app/sitemap.ts`
-> route already in place.
-
----
-
-## 1. What's already in the repo
-
-| Concern              | File                                           | Status      |
-| -------------------- | ---------------------------------------------- | ----------- |
-| Sitemap              | `apps/web/app/sitemap.ts`                      | ✅ Native   |
-| robots.txt           | `apps/web/app/robots.ts`                       | ✅ Native   |
-| `metadataBase`       | `apps/web/app/layout.tsx`                      | ✅          |
-| `siteUrl` constants  | `apps/web/lib/site.ts`                         | ✅          |
-| Per-page metadata    | `generateMetadata` in route files              | ✅ ad-hoc   |
-| JSON-LD              | Inline in `page.tsx` files                     | ✅ ad-hoc   |
+> ⚠️ This project is on **Next 16.2.4**. SEO uses native App Router file
+> conventions (`app/sitemap.ts`, `app/robots.ts`, `app/opengraph-image.tsx`,
+> `app/icon.tsx`, `app/manifest.ts`). Do **not** add `next-sitemap` — it
+> would conflict with the native `app/sitemap.ts`.
 
 ---
 
-## 2. What this automation adds
+## 1. What ships in the repo (live now)
 
-| File                                    | Purpose                                              |
-| --------------------------------------- | ---------------------------------------------------- |
-| `apps/web/lib/seo.ts`                   | `buildMetadata({...})` shared helper                 |
-| `apps/web/lib/jsonld.ts`                | `localBusinessLd`, `organizationLd`, `serviceLd`, `faqLd`, `breadcrumbLd`, `articleLd` |
-| `apps/web/app/opengraph-image.tsx`      | Dynamic OG image (1200×630, brand gradient)          |
-| `apps/web/app/layout.tsx` (edit)        | Adds `alternates: { canonical, languages }`          |
+### File-convention assets (auto-routed by Next)
+
+| File                              | Endpoint              | Purpose                                     |
+| --------------------------------- | --------------------- | ------------------------------------------- |
+| `app/sitemap.ts`                  | `/sitemap.xml`        | Native sitemap with all routes              |
+| `app/robots.ts`                   | `/robots.txt`         | Allow/disallow rules + sitemap reference    |
+| `app/opengraph-image.tsx`         | `/opengraph-image`    | 1200×630 brand OG image                     |
+| `app/twitter-image.tsx`           | `/twitter-image`      | 1200×630 Twitter card image                 |
+| `app/icon.tsx`                    | `/icon`               | 32×32 favicon (S monogram, navy + gold)     |
+| `app/apple-icon.tsx`              | `/apple-icon`         | 180×180 iOS home-screen icon                |
+| `app/manifest.ts`                 | `/manifest.webmanifest` | PWA manifest, theme color, icons          |
+| `app/favicon.ico`                 | `/favicon.ico`        | Static favicon (legacy browsers)            |
+
+### Helpers in `lib/`
+
+| File             | Exports                                                                                        |
+| ---------------- | ---------------------------------------------------------------------------------------------- |
+| `lib/seo.ts`     | `buildMetadata({ title, description, path, image?, type?, noindex? })` — Metadata factory      |
+| `lib/jsonld.ts`  | `localBusinessLd`, `organizationLd`, `serviceLd(...)`, `faqLd(...)`, `breadcrumbLd(...)`, `articleLd(...)` |
+
+### Root layout
+
+`app/layout.tsx` exports:
+- `metadata` — title template, default OG, Twitter, robots, optional `verification` from `GOOGLE_SITE_VERIFICATION` env.
+- `viewport` — themeColor `#0a2540` (light + dark), device-width.
+- `metadataBase` set to `siteUrl` so all relative OG / canonical URLs resolve.
+- `alternates: { canonical: "/", languages: { "en-AE": "/" } }`.
+
+### Marketing layout
+
+`app/(marketing)/layout.tsx` injects a site-wide `ProfessionalService`
+JSON-LD on every marketing page (org name, address, areaServed across all 7
+emirates).
 
 ---
 
-## 3. How to use the helpers
+## 2. JSON-LD coverage per page
 
-### Per-page metadata
+| Route                | Emits                                                        |
+| -------------------- | ------------------------------------------------------------ |
+| `/`                  | `FAQPage` + ProfessionalService                              |
+| `/about`             | ProfessionalService                                          |
+| `/contact`           | `LocalBusiness` + Breadcrumb + ProfessionalService           |
+| `/book`              | `Service` (free 30-min consultation) + Breadcrumb + ProfessionalService |
+| `/cost-calculator`   | `WebApplication` + Breadcrumb + ProfessionalService          |
+| `/free-zones`        | `ItemList` + Breadcrumb + ProfessionalService                |
+| `/blog`              | `Blog` + Breadcrumb + ProfessionalService                    |
+| `/blog/[slug]`       | `BlogPosting` + Breadcrumb + ProfessionalService             |
+| `/services/[slug]`   | `Service` + `FAQPage` + Breadcrumb + ProfessionalService     |
+| `/legal/*`           | ProfessionalService (no page-specific schema needed)         |
+
+---
+
+## 3. Per-page metadata: how to add a new page
 
 ```ts
-// app/(marketing)/services/free-zone/page.tsx
+// app/(marketing)/some-route/page.tsx
 import { buildMetadata } from "@/lib/seo";
+import { breadcrumbLd } from "@/lib/jsonld";
 
 export const metadata = buildMetadata({
-  title: "Free Zone Company Setup in Abu Dhabi",
-  description: "ADGM, KIZAD, twofour54, Masdar City — full setup from AED 12,500.",
-  path: "/services/free-zone",
+  title: "Page Title",
+  description: "Page description for search engines and OG cards.",
+  path: "/some-route",
 });
+
+const breadcrumbsLd = breadcrumbLd([
+  { name: "Home", path: "/" },
+  { name: "Page Title", path: "/some-route" },
+]);
+
+export default function Page() {
+  return (
+    <>
+      <YourComponent />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsLd) }}
+      />
+    </>
+  );
+}
 ```
 
-For dynamic routes, call `buildMetadata` from inside `generateMetadata()`.
+For dynamic routes (`[slug]`), use `generateMetadata` with the same call
+inside it.
 
-### JSON-LD on a page
+---
 
-```tsx
-import { faqLd, serviceLd } from "@/lib/jsonld";
+## 4. Sitemap
 
-const ld = serviceLd({ name, description, slug, startingPrice });
+`app/sitemap.ts` includes:
+- Static routes: `/`, `/about`, `/contact`, `/free-zones`, `/cost-calculator`, `/blog`, `/book`, `/legal/{privacy,terms,cookies}`
+- Dynamic routes: every entry in `SERVICE_SLUGS` and `BLOG_POSTS`
 
-return (
-  <>
-    {/* page content */}
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
-    />
-  </>
-);
+When you add a new service or blog post, the sitemap picks it up
+automatically. New static routes need to be added by hand.
+
+---
+
+## 5. Search Console + Analytics
+
+- **Verify domain**: paste the meta-tag content from GSC into
+  `GOOGLE_SITE_VERIFICATION` in `apps/web/.env.local`. The root layout reads
+  it conditionally and emits the meta tag at build/request time.
+- **Submit sitemap**: after first deploy, submit
+  `https://synergybusiness.ae/sitemap.xml` in GSC.
+- **GA4** (not yet wired): add via `@next/third-parties/google` when ready.
+
+---
+
+## 6. Environment variables
+
 ```
-
-Available helpers:
-- `localBusinessLd` — drop into root layout or contact page once
-- `organizationLd` — site-wide org info
-- `serviceLd({ name, description, slug, startingPrice? })`
-- `faqLd([{ q, a }, ...])`
-- `breadcrumbLd([{ name, path }, ...])`
-- `articleLd({ title, description, slug, publishedAt, ... })`
-
-### OG image
-
-`/opengraph-image` is now generated automatically at 1200×630 with the brand
-gradient. Crawlers (Twitter, Slack, LinkedIn, FB) will pick it up via the
-`metadataBase` URL. To override per route, drop another `opengraph-image.tsx`
-deeper in the app folder (e.g. `app/(marketing)/services/[slug]/opengraph-image.tsx`).
-
----
-
-## 4. Per-page checklist (kept short on purpose)
-
-When adding a new page:
-
-1. Export `metadata = buildMetadata({...})` (or `generateMetadata` for dynamic).
-2. If the page lists FAQs, render `faqLd(...)` JSON-LD.
-3. If the page is a service, render `serviceLd(...)` JSON-LD.
-4. Add the route URL to `app/sitemap.ts` if static; dynamic routes (services,
-   blog) are already wired via `SERVICE_SLUGS` and `BLOG_POSTS`.
-
-That's it — robots, OG image, canonical, base URL are automatic.
-
----
-
-## 5. Migration of existing pages (optional, do incrementally)
-
-The home, services/[slug], blog/[slug], free-zones, blog index, and marketing
-layout already do `generateMetadata` and inline JSON-LD. They can be migrated
-to use `buildMetadata` and the `jsonld.ts` helpers for DRYness, but they
-work fine as-is. Migrate only when touching the file for another reason.
-
----
-
-## 6. Search Console + Analytics
-
-- Add `GOOGLE_SITE_VERIFICATION` meta in `app/layout.tsx` `metadata.verification`
-  once you have a token.
-- Submit `https://synergybusiness.ae/sitemap.xml` to GSC after first deploy.
-- Add GA4 via `@next/third-parties/google` (separate task).
+NEXT_PUBLIC_APP_URL=https://synergybusiness.ae
+GOOGLE_SITE_VERIFICATION=                # optional — paste the GSC meta content here
+```
 
 ---
 

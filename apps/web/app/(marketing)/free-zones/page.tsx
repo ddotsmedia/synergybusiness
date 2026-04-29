@@ -3,6 +3,7 @@ import { FreeZoneIndex } from "@/components/free-zones/FreeZoneIndex";
 import { getPublicFreeZones } from "@/lib/admin/entities";
 import { absoluteUrl } from "@/lib/site";
 import { getPageContent } from "@/lib/site-content";
+import { breadcrumbLd } from "@/lib/jsonld";
 
 export const metadata: Metadata = {
   title: "UAE Free Zones — ADGM, KIZAD, twofour54, RAKEZ & more",
@@ -36,6 +37,17 @@ export default async function FreeZonesPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            breadcrumbLd([
+              { name: "Home", path: "/" },
+              { name: "Free Zones", path: "/free-zones" },
+            ]),
+          ),
+        }}
       />
     </>
   );

@@ -18,6 +18,7 @@ import {
   listPublicPostSlugs as listPostSlugs,
 } from "@/lib/blog-source";
 import { absoluteUrl, siteUrl } from "@/lib/site";
+import { breadcrumbLd } from "@/lib/jsonld";
 
 type Params = { slug: string };
 
@@ -248,6 +249,18 @@ export default async function BlogPostPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            breadcrumbLd([
+              { name: "Home", path: "/" },
+              { name: "Blog", path: "/blog" },
+              { name: post.title, path: `/blog/${slug}` },
+            ]),
+          ),
+        }}
       />
     </>
   );

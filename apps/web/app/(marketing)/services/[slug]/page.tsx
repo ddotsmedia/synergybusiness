@@ -7,6 +7,7 @@ import {
   type ServiceSlug,
 } from "@/lib/services-data";
 import { absoluteUrl, siteUrl } from "@/lib/site";
+import { breadcrumbLd } from "@/lib/jsonld";
 
 type Params = { slug: string };
 
@@ -103,6 +104,12 @@ export default async function ServicePage({
     }),
   };
 
+  const breadcrumbsLd = breadcrumbLd([
+    { name: "Home", path: "/" },
+    { name: "Services", path: "/#services" },
+    { name: service.hero.title, path: `/services/${slugTyped}` },
+  ]);
+
   return (
     <>
       <ServiceDetail service={service} />
@@ -113,6 +120,10 @@ export default async function ServicePage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsLd) }}
       />
     </>
   );
